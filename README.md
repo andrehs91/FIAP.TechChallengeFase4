@@ -1,11 +1,6 @@
-# FIAP - Tech Challenge (Fase 1)
+# FIAP - Tech Challenge (Fase 4)
 
-Este repositório contêm o projeto desenvolvido para o Tech Challenge da primeira fase do curso **Arquitetura de Sistemas .NET com Azure**, desenvolvido pelos alunos:
-
-- André Henrique dos Santos (RM351909)
-- Angelo Ferreira Marques de Brito (RM350884)
-- Fábio da Silva Duarte (RM352259)
-- Ricardo Modesto dos Santos (RM352150)
+Este repositório contêm o projeto desenvolvido para o Tech Challenge da quarta fase do curso **Arquitetura de Sistemas .NET com Azure**, desenvolvido pelo aluno **André Henrique dos Santos (RM351909)**.
 
 Os requisitos do projeto foram levantados através do *Event Storming* que pode ser conferido em https://miro.com/app/board/uXjVNe54OjM=/ e transcritos para o arquivo "Dicionário.docx" deste repositório.
 
