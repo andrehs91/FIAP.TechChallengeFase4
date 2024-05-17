@@ -13,6 +13,7 @@ using TechChallenge.Infraestrutura.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSingleton<IAppSettings, AppSettings>();
 builder.Services.AddDbContext<ApplicationDbContext>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
