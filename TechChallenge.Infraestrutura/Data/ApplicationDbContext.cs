@@ -1,22 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using TechChallenge.Dominio.Entities;
 
 namespace TechChallenge.Infraestrutura.Data;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration) : DbContext(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
-    private readonly IConfiguration _configuration = configuration;
 
     public DbSet<Usuario> Usuarios { get; set; } = null!;
     public DbSet<Atividade> Atividades { get; set; } = null!;
     public DbSet<Demanda> Demandas { get; set; } = null!;
     public DbSet<EventoRegistrado> EventosRegistrados { get; set; } = null!;
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSqlServer(_configuration.GetConnectionString("SQLServer"));
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

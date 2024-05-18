@@ -1,9 +1,9 @@
-using RabbitMQ.Client.Events;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using System.Text;
-using TechChallenge.Dominio.Interfaces;
 using TechChallenge.Dominio.Entities;
 using TechChallenge.Dominio.Enums;
+using TechChallenge.Dominio.Interfaces;
 using TechChallenge.Worker.Configurations;
 
 namespace TechChallenge.Worker;

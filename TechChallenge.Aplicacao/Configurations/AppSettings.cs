@@ -11,7 +11,7 @@ public class AppSettings(IConfiguration configuration) : IAppSettings
         value ??= _configuration[variable];
 
         if (value is null)
-            throw new ArgumentNullException(nameof(variable));
+            throw new ArgumentNullException(variable, "Variável de ambiente não configurada.");
 
         return value;
     }

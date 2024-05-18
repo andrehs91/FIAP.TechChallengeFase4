@@ -1,11 +1,10 @@
 ﻿using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
-using TechChallenge.Aplicacao.Configurations;
 
-namespace TechChallenge.Aplicacaoptions.Configurations;
+namespace TechChallenge.Aplicacao.Configurations;
 
-public static class Options
+public static class AppOptions
 {
     public static SwaggerGenOptions SwaggerGenOptions(SwaggerGenOptions options)
     {
