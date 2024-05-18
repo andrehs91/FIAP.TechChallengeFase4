@@ -5,18 +5,14 @@ using TechChallenge.DTO;
 
 namespace TechChallenge.Aplicacao.Commands;
 
-public class AtividadeCommand
+public class AtividadeCommand(
+    IAtividadeRepository atividadeRepository,
+    IUsuarioRepository usuarioRepository)
 {
-    private readonly IAtividadeRepository _repositorioDeAtividades;
-    private readonly IUsuarioRepository _repositorioDeUsuarios;
+    private readonly IAtividadeRepository _atividadeRepository = atividadeRepository;
+    private readonly IUsuarioRepository _usuarioRepository = usuarioRepository;
 
-    public AtividadeCommand(IAtividadeRepository repositorioDeAtividades, IUsuarioRepository repositorioDeUsuarios)
-    {
-        _repositorioDeAtividades = repositorioDeAtividades;
-        _repositorioDeUsuarios = repositorioDeUsuarios;
-    }
-
-    private void VerificarSeUsuarioEstahAutorizado(Usuario usuario, Atividade atividade)
+    private static void VerificarSeUsuarioEstahAutorizado(Usuario usuario, Atividade atividade)
     {
         if (!usuario.EhGestor ||
             usuario.Departamento != atividade.DepartamentoSolucionador)
@@ -37,33 +33,33 @@ public class AtividadeCommand
 
         VerificarSeUsuarioEstahAutorizado(usuario, atividade);
 
-        _repositorioDeAtividades.Criar(atividade);
+        _atividadeRepository.Criar(atividade);
         return atividade;
     }
 
     public IList<Atividade> ListarAtividades()
     {
-        return _repositorioDeAtividades.BuscarTodas();
+        return _atividadeRepository.BuscarTodas();
     }
 
     public IList<Atividade> ListarAtividadesAtivas()
     {
-        return _repositorioDeAtividades.BuscarAtivas();
+        return _atividadeRepository.BuscarAtivas();
     }
 
     public IList<Atividade> ListarAtividadesPorDepartamentoSolucionador(Usuario usuario)
     {
-        return _repositorioDeAtividades.BuscarPorDepartamentoSolucionador(usuario.Departamento);
+        return _atividadeRepository.BuscarPorDepartamentoSolucionador(usuario.Departamento);
     }
 
     public Atividade? ConsultarAtividade(int id)
     {
-        return _repositorioDeAtividades.BuscarPorIdComSolucionadores(id);
+        return _atividadeRepository.BuscarPorIdComSolucionadores(id);
     }
 
     public bool EditarAtividade(Usuario usuario, AtividadeDTO atividadeDTO)
     {
-        var atividade = _repositorioDeAtividades.BuscarPorId(atividadeDTO.Id);
+        var atividade = _atividadeRepository.BuscarPorId(atividadeDTO.Id);
 
         if (atividade is null) return false;
 
@@ -77,54 +73,71 @@ public class AtividadeCommand
         atividade.Prioridade = atividadeDTO.Prioridade;
         atividade.PrazoEstimado = atividadeDTO.PrazoEstimado;
 
-        _repositorioDeAtividades.Editar(atividade);
+        _atividadeRepository.Editar(atividade);
         return true;
     }
 
     public bool ApagarAtividade(Usuario usuario, int id)
     {
-        var atividade = _repositorioDeAtividades.BuscarPorId(id);
+        var atividade = _atividadeRepository.BuscarPorId(id);
 
         if (atividade is null) return false;
 
         VerificarSeUsuarioEstahAutorizado(usuario, atividade);
 
-        _repositorioDeAtividades.Apagar(atividade);
+        _atividadeRepository.Apagar(atividade);
         return true;
     }
 
     public RespostaDTO DefinirSolucionadores(Usuario usuario, IdsDosUsuariosDTO idsDosUsuariosDTO, int id)
     {
-        var atividade = _repositorioDeAtividades.BuscarPorIdComSolucionadores(id);
+        if (!usuario.EhGestor)
+            return new RespostaDTO(RespostaDTO.TiposDeResposta.Erro, "Somente gestores podem definir solucionadores.");
 
-        if (atividade is null) return new RespostaDTO(RespostaDTO.TiposDeResposta.Aviso, "Atividade não encontrada.");
-        if (atividade.DepartamentoSolucionador != usuario.Departamento) return new RespostaDTO(RespostaDTO.TiposDeResposta.Erro, "A atividade não é de responsabilidade do teu departamento.");
+        int quantidadeDeIds =
+            idsDosUsuariosDTO.IdsDosUsuariosASeremPromovidos.Count +
+            idsDosUsuariosDTO.IdsDosUsuariosASeremDemovidos.Count;
+        if (quantidadeDeIds == 0)
+            return new RespostaDTO(RespostaDTO.TiposDeResposta.Erro, "Nenhum usuário foi informado.");
 
-        var usuariosPromovidos = _repositorioDeUsuarios.BuscarPorIds(idsDosUsuariosDTO.IdsDosUsuariosASeremPromovidos);
-        var usuariosDemovivos = _repositorioDeUsuarios.BuscarPorIds(idsDosUsuariosDTO.IdsDosUsuariosASeremDemovidos);
+        var atividade = _atividadeRepository.BuscarPorIdComSolucionadores(id);
+        if (atividade is null)
+            return new RespostaDTO(RespostaDTO.TiposDeResposta.Aviso, "Atividade não encontrada.");
+        if (atividade.DepartamentoSolucionador != usuario.Departamento)
+            return new RespostaDTO(RespostaDTO.TiposDeResposta.Erro, "A atividade não é de responsabilidade do teu departamento.");
 
-        int quantidadeDeIds = idsDosUsuariosDTO.IdsDosUsuariosASeremPromovidos.Count() + idsDosUsuariosDTO.IdsDosUsuariosASeremDemovidos.Count();
-        int quantidadeDeUsuarios = usuariosPromovidos.Count() + usuariosDemovivos.Count();
-
-        if (quantidadeDeUsuarios == 0)
-            return new RespostaDTO(RespostaDTO.TiposDeResposta.Aviso, "Nenhum usuário foi encontrado.");
-        if (quantidadeDeIds != quantidadeDeUsuarios)
-            return new RespostaDTO(RespostaDTO.TiposDeResposta.Aviso, "Um ou mais usuários não foram encontrados.");
-        if (usuariosPromovidos.Concat(usuariosDemovivos).Any(u => u.Departamento != usuario.Departamento))
-            return new RespostaDTO(RespostaDTO.TiposDeResposta.Erro, "Um ou mais usuários não fazem parte do teu departamento.");
-
-        foreach (Usuario usuarioPromovido in usuariosPromovidos)
+        int quantidadeUsuariosASeremPromovidos = idsDosUsuariosDTO.IdsDosUsuariosASeremPromovidos.Count;
+        if (quantidadeUsuariosASeremPromovidos > 0)
         {
-            if (!atividade.Solucionadores.Contains(usuarioPromovido))
-                atividade.Solucionadores.Add(usuarioPromovido);
-        }
-        foreach (Usuario usuarioDemovivo in usuariosDemovivos)
-        {
-            if (atividade.Solucionadores.Contains(usuarioDemovivo))
-                atividade.Solucionadores.Remove(usuarioDemovivo);
+            IList<Usuario> usuariosPromovidos = _usuarioRepository.BuscarPorIds(idsDosUsuariosDTO.IdsDosUsuariosASeremPromovidos);
+            if (quantidadeUsuariosASeremPromovidos != usuariosPromovidos.Count)
+                return new RespostaDTO(RespostaDTO.TiposDeResposta.Aviso, "Um ou mais usuários a serem promovidos não foram encontrados.");
+            if (usuariosPromovidos.Any(u => u.Departamento != usuario.Departamento))
+                return new RespostaDTO(RespostaDTO.TiposDeResposta.Erro, "Um ou mais usuários a ser(em) promovido(s) não faz(em) parte do teu departamento.");
+            foreach (Usuario usuarioPromovido in usuariosPromovidos)
+            {
+                if (!atividade.Solucionadores.Contains(usuarioPromovido))
+                    atividade.Solucionadores.Add(usuarioPromovido);
+            }
         }
 
-        _repositorioDeAtividades.Editar(atividade);
+        int quantidadeUsuariosASeremDemovidos = idsDosUsuariosDTO.IdsDosUsuariosASeremDemovidos.Count;
+        if (quantidadeUsuariosASeremDemovidos > 0)
+        {
+            IList<Usuario> usuariosDemovidos = _usuarioRepository.BuscarPorIds(idsDosUsuariosDTO.IdsDosUsuariosASeremDemovidos);
+            if (quantidadeUsuariosASeremDemovidos != usuariosDemovidos.Count)
+                return new RespostaDTO(RespostaDTO.TiposDeResposta.Aviso, "Um ou mais usuários a serem demovidos não foram encontrados.");
+            if (usuariosDemovidos.Any(u => u.Departamento != usuario.Departamento))
+                return new RespostaDTO(RespostaDTO.TiposDeResposta.Erro, "Um ou mais usuários a ser(em) demovido(s) não faz(em) parte do teu departamento.");
+            foreach (var usuarioDemovido in from Usuario usuarioDemovido in usuariosDemovidos
+                                            where atividade.Solucionadores.Contains(usuarioDemovido)
+                                            select usuarioDemovido)
+            {
+                atividade.Solucionadores.Remove(usuarioDemovido);
+            }
+        }
+
+        _atividadeRepository.Editar(atividade);
         return new RespostaDTO(RespostaDTO.TiposDeResposta.Sucesso, "Solucionador(es) definido(s) com sucesso.");
     }
 }

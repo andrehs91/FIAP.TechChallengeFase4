@@ -31,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Aplicacao\" />
     <Folder Include="Infraestrutura\" />
   </ItemGroup>
 
