@@ -9,10 +9,11 @@ public class DemandaRepository(ApplicationDbContext context) : IDemandaRepositor
 {
     private readonly ApplicationDbContext _context = context;
 
-    public void Criar(Demanda demanda)
+    public Demanda Criar(Demanda demanda)
     {
         _context.Demandas.Add(demanda);
         _context.SaveChanges();
+        return demanda;
     }
 
     public Demanda? BuscarPorId(int id)

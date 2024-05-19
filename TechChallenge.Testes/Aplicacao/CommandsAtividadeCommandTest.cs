@@ -1,5 +1,6 @@
 ﻿using Moq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using TechChallenge.Aplicacao.Commands;
 using TechChallenge.Dominio.Entities;
 using TechChallenge.Dominio.Enums;
@@ -13,11 +14,16 @@ namespace TechChallenge.Testes.Aplicacao;
 public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
 {
     private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        ReferenceHandler = ReferenceHandler.Preserve,
+        WriteIndented = true
+    };
     private readonly Usuario _usuario = new()
     {
         Id = 1,
         Matricula = "1000",
-        Nome = "Nome Usuario",
+        Nome = "Nome do Usuário",
         Departamento = "Departamento",
         EhGestor = false,
     };
@@ -89,7 +95,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         {
             Id = 1,
             Matricula = "1000",
-            Nome = "Nome Usuario",
+            Nome = "Nome do Usuário",
             Departamento = "Departamento",
             EhGestor = true,
         };
@@ -108,7 +114,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
 
         // Act
         Atividade atividade = atividadeCommand.CriarAtividade(usuario, atividadeDTO);
-        _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade));
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade, _jsonSerializerOptions));
 
         // Assert
         Assert.Equal(atividadeDTO.Nome, atividade.Nome);
@@ -171,7 +177,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         // Act
         IList<Atividade> atividades = atividadeCommand.ListarAtividades();
         foreach (var atividade in atividades)
-            _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade));
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade, _jsonSerializerOptions));
 
         // Assert
         Assert.Equal(3, atividades.Count);
@@ -190,7 +196,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         // Act
         IList<Atividade> atividades = atividadeCommand.ListarAtividades();
         foreach (var atividade in atividades)
-            _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade));
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade, _jsonSerializerOptions));
 
         // Assert
         Assert.Empty(atividades);
@@ -208,7 +214,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         // Act
         IList<Atividade> atividades = atividadeCommand.ListarAtividadesAtivas();
         foreach (var atividade in atividades)
-            _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade));
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade, _jsonSerializerOptions));
 
         // Assert
         Assert.Equal(2, atividades.Count);
@@ -227,7 +233,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         // Act
         IList<Atividade> atividades = atividadeCommand.ListarAtividadesAtivas();
         foreach (var atividade in atividades)
-            _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade));
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade, _jsonSerializerOptions));
 
         // Assert
         Assert.Empty(atividades);
@@ -250,7 +256,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         {
             Id = 1,
             Matricula = "1000",
-            Nome = "Nome Usuario",
+            Nome = "Nome do Usuário",
             Departamento = departamento,
             EhGestor = false,
         };
@@ -258,7 +264,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         // Act
         IList<Atividade> atividades = atividadeCommand.ListarAtividadesPorDepartamentoSolucionador(usuario);
         foreach (var atividade in atividades)
-            _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade));
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade, _jsonSerializerOptions));
 
         // Assert
         if (departamento == "Departamento") Assert.Equal(2, atividades.Count);
@@ -278,7 +284,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         // Act
         IList<Atividade> atividades = atividadeCommand.ListarAtividadesPorDepartamentoSolucionador(_usuario);
         foreach (var atividade in atividades)
-            _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade));
+            _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade, _jsonSerializerOptions));
 
         // Assert
         Assert.Empty(atividades);
@@ -299,7 +305,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
 
         // Act
         Atividade? atividade = atividadeCommand.ConsultarAtividade(idAtividade);
-        _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade));
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade, _jsonSerializerOptions));
 
         // Assert
         Assert.NotNull(atividade);
@@ -319,7 +325,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
 
         // Act
         Atividade? atividade = atividadeCommand.ConsultarAtividade(idAtividade);
-        _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade));
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade, _jsonSerializerOptions));
 
         // Assert
         Assert.Null(atividade);
@@ -341,7 +347,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         {
             Id = 1,
             Matricula = "1000",
-            Nome = "Nome Usuario",
+            Nome = "Nome do Usuário",
             Departamento = "Departamento",
             EhGestor = true,
         };
@@ -367,7 +373,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         {
             Id = 1,
             Matricula = "1000",
-            Nome = "Nome Usuario",
+            Nome = "Nome do Usuário",
             Departamento = "Departamento",
             EhGestor = true,
         };
@@ -398,7 +404,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         {
             Id = 1,
             Matricula = "1000",
-            Nome = "Nome Usuario",
+            Nome = "Nome do Usuário",
             Departamento = departamento,
             EhGestor = ehGestor,
         };
@@ -425,7 +431,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         {
             Id = 1,
             Matricula = "1000",
-            Nome = "Nome Usuario",
+            Nome = "Nome do Usuário",
             Departamento = "Departamento",
             EhGestor = true,
         };
@@ -451,7 +457,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         {
             Id = 1,
             Matricula = "1000",
-            Nome = "Nome Usuario",
+            Nome = "Nome do Usuário",
             Departamento = "Departamento",
             EhGestor = true,
         };
@@ -482,7 +488,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         {
             Id = 1,
             Matricula = "1000",
-            Nome = "Nome Usuario",
+            Nome = "Nome do Usuário",
             Departamento = departamento,
             EhGestor = ehGestor,
         };
@@ -505,7 +511,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
                 {
                     Id = 1,
                     Matricula = "1000",
-                    Nome = "Nome Gestor",
+                    Nome = "Nome do Gestor",
                     Departamento = "Departamento",
                     EhGestor = true,
                 }
@@ -639,7 +645,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         {
             Id = 1,
             Matricula = "1000",
-            Nome = "Nome Gestor",
+            Nome = "Nome do Gestor",
             Departamento = "Departamento",
             EhGestor = true,
         };
@@ -666,7 +672,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         {
             Id = 1,
             Matricula = "1000",
-            Nome = "Nome Gestor",
+            Nome = "Nome do Gestor",
             Departamento = "Departamento",
             EhGestor = true,
         };
@@ -707,7 +713,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         {
             Id = 1,
             Matricula = "1000",
-            Nome = "Nome Gestor",
+            Nome = "Nome do Gestor",
             Departamento = "Departamento",
             EhGestor = true,
         };
@@ -744,7 +750,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
         {
             Id = 1,
             Matricula = "1000",
-            Nome = "Nome Gestor",
+            Nome = "Nome do Gestor",
             Departamento = "Departamento",
             EhGestor = true,
         };
@@ -798,7 +804,7 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
                 {
                     Id = 1,
                     Matricula = "1000",
-                    Nome = "Nome Gestor",
+                    Nome = "Nome do Gestor",
                     Departamento = "Departamento",
                     EhGestor = true,
                 }

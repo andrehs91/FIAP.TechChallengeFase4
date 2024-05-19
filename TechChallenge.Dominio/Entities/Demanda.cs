@@ -30,6 +30,7 @@ public class Demanda
         string detalhes,
         int? idDaDemandaReaberta = null)
     {
+        AtividadeId = atividade.Id;
         Atividade = atividade;
         IdDaDemandaReaberta = idDaDemandaReaberta;
         MomentoDeAbertura = DateTime.Now;
@@ -37,6 +38,7 @@ public class Demanda
         Situacao = Situacoes.AguardandoDistribuicao;
         DepartamentoSolicitante = solicitante.Departamento;
         UsuarioSolicitanteId = solicitante.Id;
+        UsuarioSolicitante = solicitante;
         DepartamentoSolucionador = atividade.DepartamentoSolucionador;
         Detalhes = detalhes;
         RegistrarEvento();

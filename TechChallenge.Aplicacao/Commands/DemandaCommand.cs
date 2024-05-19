@@ -10,104 +10,103 @@ namespace TechChallenge.Aplicacao.Commands;
 
 public class DemandaCommand(
     IAppSettings appSettings,
-    IAtividadeRepository repositorioDeAtividades,
-    IDemandaRepository repositorioDeDemandas,
-    IUsuarioRepository repositorioDeUsuarios)
+    IAtividadeRepository atividadeRepository,
+    IDemandaRepository demandaRepository,
+    IUsuarioRepository usuarioRepository)
 {
     private readonly IAppSettings _appSettings = appSettings;
-    private readonly IAtividadeRepository _repositorioDeAtividades = repositorioDeAtividades;
-    private readonly IDemandaRepository _repositorioDeDemandas = repositorioDeDemandas;
-    private readonly IUsuarioRepository _repositorioDeUsuarios = repositorioDeUsuarios;
+    private readonly IAtividadeRepository _atividadeRepository = atividadeRepository;
+    private readonly IDemandaRepository _demandaRepository = demandaRepository;
+    private readonly IUsuarioRepository _usuarioRepository = usuarioRepository;
 
-    public Demanda AbrirDemanda(Usuario solicitante, int id, string detalhes)
+    public Demanda AbrirDemanda(Usuario solicitante, int idAtividade, string detalhes)
     {
-        var atividade = _repositorioDeAtividades.BuscarPorId(id)
+        var atividade = _atividadeRepository.BuscarPorId(idAtividade)
             ?? throw new EntidadeNaoEncontradaException("Atividade não encontrada.");
-        Demanda demanda = Demanda.Abrir(atividade, solicitante, detalhes);
-        _repositorioDeDemandas.Criar(demanda);
+        Demanda demanda = _demandaRepository.Criar(Demanda.Abrir(atividade, solicitante, detalhes));
         if (atividade.TipoDeDistribuicao == TiposDeDistribuicao.Automatica)
             EnviarDemandaParaFilaDefinirSolucionador(demanda.Id);
-        return _repositorioDeDemandas.BuscarPorId(demanda.Id)!;
+        return demanda;
     }
 
-    public Demanda ConsultarDemanda(int id)
+    public Demanda ConsultarDemanda(int idDemanda)
     {
-        return _repositorioDeDemandas.BuscarPorId(id)
+        return _demandaRepository.BuscarPorId(idDemanda)
             ?? throw new EntidadeNaoEncontradaException("Demanda não encontrada.");
     }
 
-    internal IList<Demanda> ListarDemandasDoSolicitante(Usuario usuario)
+    public IList<Demanda> ListarDemandasDoSolicitante(Usuario usuario)
     {
-        return _repositorioDeDemandas.BuscarPorSolicitante(usuario.Id);
+        return _demandaRepository.BuscarPorSolicitante(usuario.Id);
     }
 
-    internal IList<Demanda> ListarDemandasDoDepartamentoSolicitante(Usuario usuario)
+    public IList<Demanda> ListarDemandasDoDepartamentoSolicitante(Usuario usuario)
     {
-        return _repositorioDeDemandas.BuscarPorDepartamentoSolicitante(usuario.Departamento);
+        return _demandaRepository.BuscarPorDepartamentoSolicitante(usuario.Departamento);
     }
 
-    internal IList<Demanda> ListarDemandasDoSolucionador(Usuario usuario)
+    public IList<Demanda> ListarDemandasDoSolucionador(Usuario usuario)
     {
-        return _repositorioDeDemandas.BuscarPorSolucionador(usuario.Id);
+        return _demandaRepository.BuscarPorSolucionador(usuario.Id);
     }
 
-    internal IList<Demanda> ListarDemandasDoDepartamentoSolucionador(Usuario usuario)
+    public IList<Demanda> ListarDemandasDoDepartamentoSolucionador(Usuario usuario)
     {
-        return _repositorioDeDemandas.BuscarPorDepartamentoSolucionador(usuario.Departamento);
+        return _demandaRepository.BuscarPorDepartamentoSolucionador(usuario.Departamento);
     }
 
-    public void EncaminharDemanda(Usuario ator, int id, int idNovoSolucionador, string mensagem)
+    public void EncaminharDemanda(Usuario ator, int idDemanda, int idNovoSolucionador, string mensagem)
     {
-        var novoSolucionador = _repositorioDeUsuarios.BuscarPorId(idNovoSolucionador)
+        var novoSolucionador = _usuarioRepository.BuscarPorId(idNovoSolucionador)
             ?? throw new EntidadeNaoEncontradaException("Usuário não encontrado.");
-        var demanda = ConsultarDemanda(id);
+        var demanda = ConsultarDemanda(idDemanda);
         demanda.Encaminhar(ator, novoSolucionador, mensagem);
-        _repositorioDeDemandas.Editar(demanda);
+        _demandaRepository.Editar(demanda);
     }
 
-    public void CapturarDemanda(Usuario novoSolucionador, int id)
+    public void CapturarDemanda(Usuario novoSolucionador, int idDemanda)
     {
-        novoSolucionador = _repositorioDeUsuarios.BuscarPorId(novoSolucionador.Id)
+        novoSolucionador = _usuarioRepository.BuscarPorId(novoSolucionador.Id)
             ?? throw new EntidadeNaoEncontradaException("Usuário não encontrado.");
-        var demanda = ConsultarDemanda(id);
+        var demanda = ConsultarDemanda(idDemanda);
         demanda.Capturar(novoSolucionador);
-        _repositorioDeDemandas.Editar(demanda);
+        _demandaRepository.Editar(demanda);
     }
 
-    public void RejeitarDemanda(Usuario ator, int id, string mensagem)
+    public void RejeitarDemanda(Usuario ator, int idDemanda, string mensagem)
     {
-        var demanda = ConsultarDemanda(id);
+        var demanda = ConsultarDemanda(idDemanda);
         demanda.Rejeitar(ator, mensagem);
-        _repositorioDeDemandas.Editar(demanda);
+        _demandaRepository.Editar(demanda);
     }
 
-    public void ResponderDemanda(Usuario ator, int id, string mensagem)
+    public void ResponderDemanda(Usuario ator, int idDemanda, string mensagem)
     {
-        var demanda = ConsultarDemanda(id);
+        var demanda = ConsultarDemanda(idDemanda);
         demanda.Responder(ator, mensagem);
-        _repositorioDeDemandas.Editar(demanda);
+        _demandaRepository.Editar(demanda);
     }
 
-    public void CancelarDemanda(Usuario ator, int id, string mensagem)
+    public void CancelarDemanda(Usuario ator, int idDemanda, string mensagem)
     {
-        var demanda = ConsultarDemanda(id);
+        var demanda = ConsultarDemanda(idDemanda);
         demanda.Cancelar(ator, mensagem);
-        _repositorioDeDemandas.Editar(demanda);
+        _demandaRepository.Editar(demanda);
     }
 
-    public Demanda ReabrirDemanda(Usuario solicitante, int id, string mensagem)
+    public Demanda ReabrirDemanda(Usuario solicitante, int idDemanda, string mensagem)
     {
-        var demanda = ConsultarDemanda(id);
+        var demanda = ConsultarDemanda(idDemanda);
         Demanda novaDemanda = demanda.Reabrir(solicitante, mensagem);
-        _repositorioDeDemandas.Criar(novaDemanda);
+        _demandaRepository.Criar(novaDemanda);
         return novaDemanda;
     }
 
-    public void ReativarDemanda(Usuario ator, int id, string mensagem)
+    public void ReativarDemanda(Usuario ator, int idDemanda, string mensagem)
     {
-        var demanda = ConsultarDemanda(id);
+        var demanda = ConsultarDemanda(idDemanda);
         demanda.Reativar(ator, mensagem);
-        _repositorioDeDemandas.Editar(demanda);
+        _demandaRepository.Editar(demanda);
     }
     private void EnviarDemandaParaFilaDefinirSolucionador(int idDemanda)
     {
