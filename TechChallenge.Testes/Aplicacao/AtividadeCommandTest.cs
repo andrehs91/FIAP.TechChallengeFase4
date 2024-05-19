@@ -11,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace TechChallenge.Testes.Aplicacao;
 
-public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
+public class AtividadeCommandTest(ITestOutputHelper testOutputHelper)
 {
     private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
@@ -87,10 +87,6 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
     public void CriarAtividade(TiposDeDistribuicao tiposDeDistribuicao, Prioridades prioridade)
     {
         // Arrange
-        var mockAtividadeRepository = new Mock<IAtividadeRepository>();
-        mockAtividadeRepository.Setup(m => m.Criar(It.IsAny<Atividade>()));
-        var mockUsuarioRepository = new Mock<IUsuarioRepository>();
-        AtividadeCommand atividadeCommand = new(mockAtividadeRepository.Object, mockUsuarioRepository.Object);
         Usuario usuario = new()
         {
             Id = 1,
@@ -111,6 +107,13 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
             Prioridade = prioridade,
             PrazoEstimado = prazoEstimado,
         };
+        var entidade = atividadeDTO.ConverterParaEntidade();
+        entidade.Id = 1;
+
+        var mockAtividadeRepository = new Mock<IAtividadeRepository>();
+        mockAtividadeRepository.Setup(m => m.Criar(It.IsAny<Atividade>())).Returns(entidade);
+        var mockUsuarioRepository = new Mock<IUsuarioRepository>();
+        AtividadeCommand atividadeCommand = new(mockAtividadeRepository.Object, mockUsuarioRepository.Object);
 
         // Act
         Atividade atividade = atividadeCommand.CriarAtividade(usuario, atividadeDTO);
@@ -409,90 +412,6 @@ public class CommandsAtividadeCommandTest(ITestOutputHelper testOutputHelper)
             EhGestor = ehGestor,
         };
         void act() => atividadeCommand.EditarAtividade(usuario, _atividadeEditadaDTO);
-
-        // Act and Assert
-        Exception exception = Assert.Throws<AcaoNaoAutorizadaException>(act);
-        _testOutputHelper.WriteLine(exception.Message);
-    }
-
-    [Theory]
-    [InlineData(1)]
-    [InlineData(2)]
-    public void ApagarAtividadeDeveRetornarVerdadeiro(int idAtividade)
-    {
-        // Arrange
-        var mockAtividadeRepository = new Mock<IAtividadeRepository>();
-        mockAtividadeRepository.Setup(m => m.BuscarPorId(It.IsAny<int>()))
-            .Returns(_atividades.Find(a => a.Id == idAtividade));
-        mockAtividadeRepository.Setup(m => m.Apagar(It.IsAny<Atividade>()));
-        var mockUsuarioRepository = new Mock<IUsuarioRepository>();
-        AtividadeCommand atividadeCommand = new(mockAtividadeRepository.Object, mockUsuarioRepository.Object);
-        Usuario usuario = new()
-        {
-            Id = 1,
-            Matricula = "1000",
-            Nome = "Nome do Usuário",
-            Departamento = "Departamento",
-            EhGestor = true,
-        };
-
-        // Act
-        bool resultado = atividadeCommand.ApagarAtividade(usuario, idAtividade);
-
-        // Assert
-        Assert.True(resultado);
-    }
-
-    [Fact]
-    public void ApagarAtividadeDeveRetornarFalso()
-    {
-        // Arrange
-        int idAtividade = 0;
-        var mockAtividadeRepository = new Mock<IAtividadeRepository>();
-        mockAtividadeRepository.Setup(m => m.BuscarPorId(It.IsAny<int>()))
-            .Returns(_atividades.Find(a => a.Id == idAtividade));
-        var mockUsuarioRepository = new Mock<IUsuarioRepository>();
-        AtividadeCommand atividadeCommand = new(mockAtividadeRepository.Object, mockUsuarioRepository.Object);
-        Usuario usuario = new()
-        {
-            Id = 1,
-            Matricula = "1000",
-            Nome = "Nome do Usuário",
-            Departamento = "Departamento",
-            EhGestor = true,
-        };
-
-        // Act
-        bool resultado = atividadeCommand.ApagarAtividade(usuario, idAtividade);
-
-        // Assert
-        Assert.False(resultado);
-    }
-
-    [Theory]
-    [InlineData("Departamento", false)]
-    [InlineData("Outro Departamento", false)]
-    [InlineData("Outro Departamento", true)]
-    public void ApagarAtividadeLancarExcecaoPorUsuarioNaoAutorizado(
-        string departamento,
-        bool ehGestor)
-    {
-        // Arrange
-        int idAtividade = 1;
-        var mockAtividadeRepository = new Mock<IAtividadeRepository>();
-        mockAtividadeRepository.Setup(m => m.BuscarPorId(It.IsAny<int>()))
-            .Returns(_atividades.Find(a => a.Id == idAtividade));
-        var mockUsuarioRepository = new Mock<IUsuarioRepository>();
-        AtividadeCommand atividadeCommand = new(mockAtividadeRepository.Object, mockUsuarioRepository.Object);
-        Usuario usuario = new()
-        {
-            Id = 1,
-            Matricula = "1000",
-            Nome = "Nome do Usuário",
-            Departamento = departamento,
-            EhGestor = ehGestor,
-        };
-        void act() => atividadeCommand.ApagarAtividade(usuario, idAtividade);
 
         // Act and Assert
         Exception exception = Assert.Throws<AcaoNaoAutorizadaException>(act);

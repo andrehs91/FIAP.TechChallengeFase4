@@ -1,4 +1,4 @@
-﻿namespace TechChallenge.Worker.Configurations;
+﻿namespace TechChallenge.Infraestrutura.Settings;
 
 public interface IAppSettings
 {

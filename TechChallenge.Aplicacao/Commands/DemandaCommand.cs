@@ -1,10 +1,10 @@
 ﻿using RabbitMQ.Client;
 using System.Text.Json;
-using TechChallenge.Aplicacao.Configurations;
 using TechChallenge.Dominio.Entities;
 using TechChallenge.Dominio.Enums;
 using TechChallenge.Dominio.Exceptions;
 using TechChallenge.Dominio.Interfaces;
+using TechChallenge.Infraestrutura.Settings;
 
 namespace TechChallenge.Aplicacao.Commands;
 
@@ -23,6 +23,10 @@ public class DemandaCommand(
     {
         var atividade = _atividadeRepository.BuscarPorId(idAtividade)
             ?? throw new EntidadeNaoEncontradaException("Atividade não encontrada.");
+
+        if (!atividade.EstahAtiva)
+            throw new AcaoNaoAutorizadaException("A atividade não está ativa.");
+
         Demanda demanda = _demandaRepository.Criar(Demanda.Abrir(atividade, solicitante, detalhes));
         if (atividade.TipoDeDistribuicao == TiposDeDistribuicao.Automatica)
             EnviarDemandaParaFilaDefinirSolucionador(demanda.Id);

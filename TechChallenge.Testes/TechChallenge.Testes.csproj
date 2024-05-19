@@ -31,10 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Infraestrutura\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\TechChallenge.Aplicacao\TechChallenge.Aplicacao.csproj" />
     <ProjectReference Include="..\TechChallenge.Dominio\TechChallenge.Dominio.csproj" />
     <ProjectReference Include="..\TechChallenge.Infraestrutura\TechChallenge.Infraestrutura.csproj" />

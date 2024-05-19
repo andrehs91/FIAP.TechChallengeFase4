@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace TechChallenge.Testes.Dominio;
 
-public class EntitiesDemandaTest
+public class DemandaTest
 {
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
@@ -37,7 +37,7 @@ public class EntitiesDemandaTest
         );
     }
 
-    public EntitiesDemandaTest(ITestOutputHelper testOutputHelper)
+    public DemandaTest(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
         _atividade = new Atividade(

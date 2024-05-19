@@ -12,5 +12,4 @@ public interface IDemandaRepository
     IList<Demanda> BuscarPorSolucionador(int idSolucionador);
     IList<Demanda> BuscarPorDepartamentoSolucionador(string departamento);
     void Editar(Demanda demanda);
-    void Apagar(Demanda demanda);
 }

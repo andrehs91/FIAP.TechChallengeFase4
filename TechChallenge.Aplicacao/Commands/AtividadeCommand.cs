@@ -33,8 +33,7 @@ public class AtividadeCommand(
 
         VerificarSeUsuarioEstahAutorizado(usuario, atividade);
 
-        _atividadeRepository.Criar(atividade);
-        return atividade;
+        return _atividadeRepository.Criar(atividade);
     }
 
     public IList<Atividade> ListarAtividades()
@@ -74,18 +73,6 @@ public class AtividadeCommand(
         atividade.PrazoEstimado = atividadeDTO.PrazoEstimado;
 
         _atividadeRepository.Editar(atividade);
-        return true;
-    }
-
-    public bool ApagarAtividade(Usuario usuario, int id)
-    {
-        var atividade = _atividadeRepository.BuscarPorId(id);
-
-        if (atividade is null) return false;
-
-        VerificarSeUsuarioEstahAutorizado(usuario, atividade);
-
-        _atividadeRepository.Apagar(atividade);
         return true;
     }
 

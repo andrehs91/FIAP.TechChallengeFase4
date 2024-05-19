@@ -2,7 +2,7 @@
 
 namespace TechChallenge.Testes.Dominio;
 
-public class EntitiesUsuarioTest
+public class UsuarioTest
 {
     [Theory]
     [InlineData(1, "1000", "Nome do Usuário", "Departamento", false, true)]

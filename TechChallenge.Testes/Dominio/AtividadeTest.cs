@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 namespace TechChallenge.Testes.Dominio;
 
-public class EntitiesAtividadeTest(ITestOutputHelper testOutputHelper)
+public class AtividadeTest(ITestOutputHelper testOutputHelper)
 {
     private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
 

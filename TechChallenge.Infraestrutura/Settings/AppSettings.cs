@@ -1,4 +1,6 @@
-﻿namespace TechChallenge.Worker.Configurations;
+﻿using Microsoft.Extensions.Configuration;
+
+namespace TechChallenge.Infraestrutura.Settings;
 
 public class AppSettings(IConfiguration configuration) : IAppSettings
 {
@@ -8,9 +10,11 @@ public class AppSettings(IConfiguration configuration) : IAppSettings
     {
         string environmentVariable = variable.Replace(":", "_").ToUpper();
         var value = Environment.GetEnvironmentVariable(environmentVariable);
-        value ??= _configuration[variable];
 
-        if (value is null)
+        if (string.IsNullOrWhiteSpace(value))
+            value = _configuration[variable];
+
+        if (string.IsNullOrWhiteSpace(value))
             throw new ArgumentNullException(variable, "Variável de ambiente não configurada.");
 
         return value;

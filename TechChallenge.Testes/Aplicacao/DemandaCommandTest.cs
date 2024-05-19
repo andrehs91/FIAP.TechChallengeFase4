@@ -1,17 +1,17 @@
 ﻿using Moq;
-using System.Text.Json.Serialization;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using TechChallenge.Aplicacao.Commands;
-using TechChallenge.Aplicacao.Configurations;
 using TechChallenge.Dominio.Entities;
 using TechChallenge.Dominio.Enums;
-using TechChallenge.Dominio.Interfaces;
-using Xunit.Abstractions;
 using TechChallenge.Dominio.Exceptions;
+using TechChallenge.Dominio.Interfaces;
+using TechChallenge.Infraestrutura.Settings;
+using Xunit.Abstractions;
 
 namespace TechChallenge.Testes.Aplicacao;
 
-public class CommandsDemandaCommandTest
+public class DemandaCommandTest
 {
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
@@ -23,7 +23,7 @@ public class CommandsDemandaCommandTest
     private readonly Dictionary<int, Usuario> _usuarios;
     private readonly DemandaCommand _demandaCommand;
 
-    public CommandsDemandaCommandTest(ITestOutputHelper testOutputHelper)
+    public DemandaCommandTest(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
 

@@ -122,27 +122,6 @@ public class AtividadeController(AtividadeCommand comandos) : BaseController
     }
 
     /// <summary>
-    /// Comando: Apagar Atividade
-    /// </summary>
-    /// <remarks>
-    /// Apaga uma atividade específica. Ação não mapeada no Event Storming.
-    /// Acesso restrito aos usuários com a função "Gestor".
-    /// </remarks>
-    /// <param name="id">Identificador da atividade</param>
-    [HttpDelete("apagar/{id}")]
-    [Authorize(Roles = "Gestor")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(RespostaDTO), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(RespostaDTO), StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(RespostaDTO), StatusCodes.Status404NotFound)]
-    public IActionResult ApagarAtividade(int id)
-    {
-        return _comandos.ApagarAtividade(ObterUsuarioAutenticado(), id)
-            ? NoContent()
-            : NotFound();
-    }
-
-    /// <summary>
     /// Comando: Definir Solucionador
     /// </summary>
     /// <remarks>

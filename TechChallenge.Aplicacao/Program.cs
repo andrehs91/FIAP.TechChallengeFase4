@@ -9,8 +9,10 @@ using TechChallenge.Aplicacao.Configurations;
 using TechChallenge.Aplicacao.Services;
 using TechChallenge.Dominio.Interfaces;
 using TechChallenge.Dominio.Policies;
+using TechChallenge.Infraestrutura.Cache;
 using TechChallenge.Infraestrutura.Data;
 using TechChallenge.Infraestrutura.Repositories;
+using TechChallenge.Infraestrutura.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +31,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 );
 
 builder.Services.AddSingleton<IAppSettings, AppSettings>();
+builder.Services.AddScoped<IRedisCache, RedisCache>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IAtividadeRepository, AtividadeRepository>();

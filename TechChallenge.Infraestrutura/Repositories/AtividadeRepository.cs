@@ -1,40 +1,101 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using TechChallenge.Dominio.Entities;
 using TechChallenge.Dominio.Interfaces;
+using TechChallenge.Infraestrutura.Cache;
 using TechChallenge.Infraestrutura.Data;
 
 namespace TechChallenge.Infraestrutura.Repositories;
 
-public class AtividadeRepository(ApplicationDbContext context) : IAtividadeRepository
+public class AtividadeRepository(
+    ILogger<AtividadeRepository> logger,
+    ApplicationDbContext context,
+    IRedisCache redisCache) : IAtividadeRepository
 {
+    private readonly ILogger<AtividadeRepository> _logger = logger;
     private readonly ApplicationDbContext _context = context;
+    private readonly IRedisCache _redisCache = redisCache;
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        ReferenceHandler = ReferenceHandler.Preserve
+    };
 
-    public void Criar(Atividade atividade)
+    public Atividade Criar(Atividade atividade)
     {
         _context.Atividades.Add(atividade);
         _context.SaveChanges();
+
+        var db = _redisCache.GetDatabase();
+        db.KeyDelete("TodasAtividades");
+        db.KeyDelete("AtividadesAtivas");
+
+        return atividade;
     }
 
     public Atividade? BuscarPorId(int id)
     {
-        return _context.Atividades.Find(id);
+        var db = _redisCache.GetDatabase();
+        string key = $"Atividade:{id}";
+        var cache = db.StringGet(key);
+        Atividade? atividade = DesserializarAtividade(cache);
+        if (atividade is not null) return atividade;
+
+        atividade = _context.Atividades.Find(id);
+        if (atividade is not null)
+            db.StringSet(key, JsonSerializer.Serialize(atividade, _jsonSerializerOptions));
+
+        return atividade;
     }
 
     public Atividade? BuscarPorIdComSolucionadores(int id)
     {
-        return _context.Atividades
+        var db = _redisCache.GetDatabase();
+        string key = $"AtividadeComSolucionadores:{id}";
+        var cache = db.StringGet(key);
+        Atividade? atividade = DesserializarAtividade(cache);
+        if (atividade is not null) return atividade;
+
+        atividade = _context.Atividades
             .Include(a => a.Solucionadores)
             .FirstOrDefault(a => a.Id == id);
+        if (atividade is not null)
+            db.StringSet(key,
+                JsonSerializer.Serialize(atividade, _jsonSerializerOptions));
+
+        return atividade;
     }
 
     public IList<Atividade> BuscarTodas()
     {
-        return _context.Atividades.ToList();
+        var db = _redisCache.GetDatabase();
+        string key = "TodasAtividades";
+        var cache = db.StringGet(key);
+        List<Atividade>? atividades = DesserializarAtividades(cache);
+        if (atividades is not null) return atividades;
+
+        atividades = _context.Atividades.ToList();
+        if (atividades.Count > 0)
+            db.StringSet(key, JsonSerializer.Serialize(atividades, _jsonSerializerOptions));
+
+        return atividades;
     }
 
     public IList<Atividade> BuscarAtivas()
     {
-        return _context.Atividades.Where(a => a.EstahAtiva).ToList();
+        var db = _redisCache.GetDatabase();
+        string key = "AtividadesAtivas";
+        var cache = db.StringGet(key);
+        List<Atividade>? atividades = DesserializarAtividades(cache);
+        if (atividades is not null) return atividades;
+
+        atividades = _context.Atividades.Where(a => a.EstahAtiva).ToList();
+        if (atividades.Count > 0)
+            db.StringSet(key, JsonSerializer.Serialize(atividades, _jsonSerializerOptions));
+
+        return atividades;
     }
 
     public IList<Atividade> BuscarPorDepartamentoSolucionador(string departamento)
@@ -46,12 +107,13 @@ public class AtividadeRepository(ApplicationDbContext context) : IAtividadeRepos
     {
         _context.Atividades.Update(atividade);
         _context.SaveChanges();
-    }
 
-    public void Apagar(Atividade atividade)
-    {
-        _context.Atividades.Remove(atividade);
-        _context.SaveChanges();
+        int id = atividade.Id;
+        var db = _redisCache.GetDatabase();
+        db.KeyDelete($"Atividade:{id}");
+        db.KeyDelete($"AtividadeComSolucionadores:{id}");
+        db.KeyDelete("TodasAtividades");
+        db.KeyDelete("AtividadesAtivas");
     }
 
     public Usuario? IdentificarSolucionadorMenosAtarefado(int atividadeId)
@@ -83,5 +145,39 @@ public class AtividadeRepository(ApplicationDbContext context) : IAtividadeRepos
             .ThenBy(r => r.QuantidadeDeDemandas)
             .First()
             .Solucionador;
+    }
+
+    private Atividade? DesserializarAtividade(RedisValue cache)
+    {
+        Atividade? atividade = null;
+        if (cache.HasValue)
+        {
+            try
+            {
+                atividade = JsonSerializer.Deserialize<Atividade>(cache.ToString(), _jsonSerializerOptions);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Erro ao desserializar atividade.");
+            }
+        }
+        return atividade;
+    }
+
+    private List<Atividade>? DesserializarAtividades(RedisValue cache)
+    {
+        List<Atividade>? atividades = null;
+        if (cache.HasValue)
+        {
+            try
+            {
+                atividades = JsonSerializer.Deserialize<List<Atividade>>(cache.ToString(), _jsonSerializerOptions);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Erro ao desserializar lista de atividades.");
+            }
+        }
+        return atividades;
     }
 }
