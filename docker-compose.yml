@@ -1,4 +1,3 @@
-version: '3'
 services:
 
   rabbitmq:
@@ -54,10 +53,9 @@ services:
     volumes:
       - mariadb_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+      test: ["CMD", "mysql", "-u", "root", "-p", "${MARIADB_ROOT_PASSWORD}", "-h", "localhost", "-e", "SELECT 1"]
+      timeout: 20s
+      retries: 10
     restart: always
 
   worker:
@@ -70,16 +68,19 @@ services:
       - RABBITMQ_HOSTNAME=${RABBITMQ_HOSTNAME}
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - REDIS_HOSTNAME=${REDIS_HOSTNAME}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - MARIADB_SERVER=${MARIADB_SERVER}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
       - MARIADB_USER=${MARIADB_USER}
       - MARIADB_PASSWORD=${MARIADB_PASSWORD}
-      - MARIADB_DATABASE=${MARIADB_DATABASE}
       - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
     depends_on:
       - rabbitmq
       - mariadb
     networks:
       - fiapnetwork
+    restart: always
 
   aplicacao:
     build:
@@ -94,9 +95,9 @@ services:
       - REDIS_HOSTNAME=${REDIS_HOSTNAME}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - MARIADB_SERVER=${MARIADB_SERVER}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
       - MARIADB_USER=${MARIADB_USER}
       - MARIADB_PASSWORD=${MARIADB_PASSWORD}
-      - MARIADB_DATABASE=${MARIADB_DATABASE}
       - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
     ports:
       - 8080:8080
@@ -107,6 +108,7 @@ services:
       - mariadb
     networks:
       - fiapnetwork
+    restart: always
 
 volumes:
   rabbitmq_data:

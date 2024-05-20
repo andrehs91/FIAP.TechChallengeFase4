@@ -27,6 +27,7 @@ public class DemandaRepository(
     {
         try
         {
+            _context.Attach(demanda.UsuarioSolicitante);
             _context.Demandas.Add(demanda);
             _context.SaveChanges();
 
