@@ -26,7 +26,7 @@ No arquivo "Requisitos.docx", seção **Eventos/Comandos** e seção **Política
 1. Os testes automatizados estão contidos no projeto <u>TechChallenge.Testes</u>.
 2. A escolha dos componentes <u>RabbitMQ</u>, <u>Redis</u> e <u>MariaDB</u> foi motivada pelo requisito não funcional *"A solução deverá evitar Vendor Lock-In"*.
 3. Todos os componentes desta arquitetura rodam em <u>Containers Docker</u>.
-4. Esta estrutura, baseada em <u>micro serviços</u>, confere maior <u>resiliência</u>, pois qualquer componente pode ser substituído em caso de falha, e permite a adoção de estratégias de <u>escalabilidade</u>, visto que a quantidade de containers pode variar conforme a demanda.
+4. Esta estrutura baseada em <u>micro serviços</u> confere maior <u>resiliência</u>, pois qualquer componente pode ser substituído em caso de falha, e permite a adoção de estratégias de <u>escalabilidade</u>, visto que a quantidade de containers pode variar conforme a demanda.
 5. O arquivo "docker-compose.yml" define as configurações e ordem de carregamento dos componentes da arquitetura.
 
 ---
