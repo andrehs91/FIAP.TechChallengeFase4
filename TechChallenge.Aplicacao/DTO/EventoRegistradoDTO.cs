@@ -1,7 +1,7 @@
 ﻿using TechChallenge.Dominio.Entities;
 using TechChallenge.Dominio.Enums;
 
-namespace TechChallenge.DTO;
+namespace TechChallenge.Aplicacao.DTO;
 
 public class EventoRegistradoDTO
 {

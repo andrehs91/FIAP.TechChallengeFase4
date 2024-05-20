@@ -1,6 +1,6 @@
 ﻿using TechChallenge.Dominio.Entities;
 
-namespace TechChallenge.DTO;
+namespace TechChallenge.Aplicacao.DTO;
 
 public class UsuarioDTO(Usuario usuario)
 {

@@ -6,7 +6,7 @@ using TechChallenge.Dominio.Entities;
 using TechChallenge.Dominio.Enums;
 using TechChallenge.Dominio.Exceptions;
 using TechChallenge.Dominio.Interfaces;
-using TechChallenge.DTO;
+using TechChallenge.Aplicacao.DTO;
 using TechChallenge.Infraestrutura.Exceptions;
 using Xunit.Abstractions;
 

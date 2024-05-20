@@ -2,18 +2,15 @@
 using System.Text.Json.Serialization;
 using TechChallenge.Dominio.Enums;
 
-namespace TechChallenge.DTO;
+namespace TechChallenge.Aplicacao.DTO;
 
-public class EditarAtividadeDTO
+public class CriarAtividadeDTO
 {
     [Required(ErrorMessage = "O campo 'Nome' é obrigatório")]
     public string Nome { get; set; } = null!;
 
     [Required(ErrorMessage = "O campo 'Descricao' é obrigatório")]
     public string Descricao { get; set; } = null!;
-
-    [Required(ErrorMessage = "O campo 'EstahAtiva' é obrigatório")]
-    public bool EstahAtiva { get; set; }
 
     [Required(ErrorMessage = "O campo 'TipoDeDistribuicao' é obrigatório")]
     [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -23,17 +20,16 @@ public class EditarAtividadeDTO
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public Prioridades Prioridade { get; set; }
 
-    [Required(ErrorMessage = "O campo 'PrazoEstimado' é obrigatório")]
+    [Required(ErrorMessage = "O campo 'PriorPrazoEstimadoidade' é obrigatório")]
     public uint PrazoEstimado { get; set; }
 
-    public AtividadeDTO ConverterParaAtividadeDTO(int id, string departamentoSolucionador)
+    public AtividadeDTO ConverterParaAtividadeDTO(string departamentoSolucionador)
     {
         return new AtividadeDTO()
         {
-            Id = id,
             Nome = Nome,
             Descricao = Descricao,
-            EstahAtiva = EstahAtiva,
+            EstahAtiva = true,
             DepartamentoSolucionador = departamentoSolucionador,
             TipoDeDistribuicao = TipoDeDistribuicao,
             Prioridade = Prioridade,

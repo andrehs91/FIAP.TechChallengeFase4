@@ -30,7 +30,6 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["TechChallenge.Aplicacao/TechChallenge.Aplicacao.csproj", "TechChallenge.Aplicacao/"]
 COPY ["TechChallenge.Dominio/TechChallenge.Dominio.csproj", "TechChallenge.Dominio/"]
-COPY ["TechChallenge.DTO/TechChallenge.DTO.csproj", "TechChallenge.DTO/"]
 COPY ["TechChallenge.Infraestrutura/TechChallenge.Infraestrutura.csproj", "TechChallenge.Infraestrutura/"]
 RUN dotnet restore "./TechChallenge.Aplicacao/TechChallenge.Aplicacao.csproj"
 COPY . .

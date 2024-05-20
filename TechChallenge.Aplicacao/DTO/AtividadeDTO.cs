@@ -2,9 +2,9 @@
 using TechChallenge.Dominio.Entities;
 using TechChallenge.Dominio.Enums;
 
-namespace TechChallenge.DTO;
+namespace TechChallenge.Aplicacao.DTO;
 
-public class AtividadeComSolucionadoresDTO
+public class AtividadeDTO
 {
 
     public int Id { get; set; }
@@ -15,11 +15,10 @@ public class AtividadeComSolucionadoresDTO
     [JsonConverter(typeof(JsonStringEnumConverter))] public TiposDeDistribuicao TipoDeDistribuicao { get; set; }
     [JsonConverter(typeof(JsonStringEnumConverter))] public Prioridades Prioridade { get; set; }
     public uint PrazoEstimado { get; set; }
-    public List<SolucionadorDTO> Solucionadores { get; set; } = [];
 
-    public AtividadeComSolucionadoresDTO() { }
+    public AtividadeDTO() { }
 
-    public AtividadeComSolucionadoresDTO(Atividade atividade)
+    public AtividadeDTO(Atividade atividade)
     {
         Id = atividade.Id;
         Nome = atividade.Nome;
@@ -29,11 +28,20 @@ public class AtividadeComSolucionadoresDTO
         TipoDeDistribuicao = atividade.TipoDeDistribuicao;
         Prioridade = atividade.Prioridade;
         PrazoEstimado = atividade.PrazoEstimado;
+    }
 
-        if (atividade.Solucionadores.Any())
+    public Atividade ConverterParaEntidade()
+    {
+        return new Atividade()
         {
-            foreach (var solucionador in atividade.Solucionadores)
-                Solucionadores.Add(new SolucionadorDTO(solucionador));
-        }
+            Id = Id,
+            Nome = Nome,
+            Descricao = Descricao,
+            EstahAtiva = EstahAtiva,
+            DepartamentoSolucionador = DepartamentoSolucionador,
+            TipoDeDistribuicao = TipoDeDistribuicao,
+            Prioridade = Prioridade,
+            PrazoEstimado = PrazoEstimado,
+        };
     }
 }

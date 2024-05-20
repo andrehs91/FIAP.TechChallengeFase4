@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TechChallenge.Dominio\TechChallenge.Dominio.csproj" />
-    <ProjectReference Include="..\TechChallenge.DTO\TechChallenge.DTO.csproj" />
     <ProjectReference Include="..\TechChallenge.Infraestrutura\TechChallenge.Infraestrutura.csproj" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,2 @@
+Add-Migration ProjetoCriado -StartupProject TechChallenge.Aplicacao -Project TechChallenge.Infraestrutura -Context TechChallenge.Infraestrutura.Data.ApplicationDbContext
+Update-Database -StartupProject TechChallenge.Aplicacao -Project TechChallenge.Infraestrutura -Context TechChallenge.Infraestrutura.Data.ApplicationDbContext

@@ -1,4 +1,4 @@
-﻿namespace TechChallenge.DTO;
+﻿namespace TechChallenge.Aplicacao.DTO;
 
 public class IdsDosUsuariosDTO
 {

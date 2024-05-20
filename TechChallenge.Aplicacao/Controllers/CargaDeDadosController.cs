@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TechChallenge.Dominio.Entities;
 using TechChallenge.Dominio.Enums;
-using TechChallenge.DTO;
+using TechChallenge.Aplicacao.DTO;
 using TechChallenge.Infraestrutura.Data;
 
 namespace TechChallenge.Aplicacao.Controllers;

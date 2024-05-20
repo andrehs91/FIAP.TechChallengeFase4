@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace TechChallenge.DTO;
+namespace TechChallenge.Aplicacao.DTO;
 
 public class AutenticarDTO
 {

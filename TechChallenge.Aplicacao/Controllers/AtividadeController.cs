@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TechChallenge.Aplicacao.Commands;
 using TechChallenge.Dominio.Entities;
 using TechChallenge.Dominio.Exceptions;
-using TechChallenge.DTO;
+using TechChallenge.Aplicacao.DTO;
 
 namespace TechChallenge.Aplicacao.Controllers;
 

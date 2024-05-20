@@ -1,6 +1,6 @@
 ﻿using TechChallenge.Dominio.Entities;
 using TechChallenge.Dominio.Interfaces;
-using TechChallenge.DTO;
+using TechChallenge.Aplicacao.DTO;
 
 namespace TechChallenge.Aplicacao.Commands;
 

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace TechChallenge.DTO;
+namespace TechChallenge.Aplicacao.DTO;
 
 public class RespostaDTO(RespostaDTO.TiposDeResposta tipo, string mensagem)
 {

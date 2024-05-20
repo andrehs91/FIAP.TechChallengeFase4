@@ -62,7 +62,7 @@ services:
     build:
       context: .
       dockerfile: TechChallenge.Worker/Dockerfile
-    image: ${DOCKERHUB_ACCOUNT}/techchallenge.worker
+    image: techchallenge.worker
     container_name: worker
     environment:
       - RABBITMQ_HOSTNAME=${RABBITMQ_HOSTNAME}
@@ -86,7 +86,7 @@ services:
     build:
       context: .
       dockerfile: TechChallenge.Aplicacao/Dockerfile
-    image: ${DOCKERHUB_ACCOUNT}/techchallenge.aplicacao
+    image: techchallenge.aplicacao
     container_name: aplicacao
     environment:
       - RABBITMQ_HOSTNAME=${RABBITMQ_HOSTNAME}

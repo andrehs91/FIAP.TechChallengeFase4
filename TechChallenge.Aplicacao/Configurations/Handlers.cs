@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using TechChallenge.Dominio.Exceptions;
-using TechChallenge.DTO;
+using TechChallenge.Aplicacao.DTO;
 using TechChallenge.Infraestrutura.Exceptions;
 
 namespace TechChallenge.Aplicacao.Configurations;

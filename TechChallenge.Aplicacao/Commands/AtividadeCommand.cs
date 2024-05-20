@@ -1,7 +1,7 @@
 ﻿using TechChallenge.Dominio.Entities;
 using TechChallenge.Dominio.Exceptions;
 using TechChallenge.Dominio.Interfaces;
-using TechChallenge.DTO;
+using TechChallenge.Aplicacao.DTO;
 using TechChallenge.Infraestrutura.Exceptions;
 
 namespace TechChallenge.Aplicacao.Commands;
