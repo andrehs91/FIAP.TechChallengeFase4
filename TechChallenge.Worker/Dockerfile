@@ -27,6 +27,9 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["TechChallenge.Worker/TechChallenge.Worker.csproj", "TechChallenge.Worker/"]
+COPY ["TechChallenge.Dominio/TechChallenge.Dominio.csproj", "TechChallenge.Dominio/"]
+COPY ["TechChallenge.DTO/TechChallenge.DTO.csproj", "TechChallenge.DTO/"]
+COPY ["TechChallenge.Infraestrutura/TechChallenge.Infraestrutura.csproj", "TechChallenge.Infraestrutura/"]
 RUN dotnet restore "./TechChallenge.Worker/TechChallenge.Worker.csproj"
 COPY . .
 WORKDIR "/src/TechChallenge.Worker"
