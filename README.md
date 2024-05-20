@@ -47,7 +47,7 @@ Para que o projeto fosse considerado viável e uma primeira versão pudesse ser 
 
 1. (Opcional) Alterar o segredo utilizado para a geração dos Tokens JWT nos arquivos “appsettings.json” > “Secret” de ambos os projetos (Aplicacao e Worker);
 2. (Opcional) Alterar as variáveis contidas no arquivo ".env";
-3. Na pasta raíz do projeto, executar o commando: ``` docker compose up ```;
+3. Na pasta raiz do projeto, executar o commando: ``` docker compose up ```;
 4. Acessar a interface [Swagger](http://localhost:8080/swagger/index.html);
 5. Fazer um requisição GET para http://localhost:8080/CargaDeDados (ela irá incluir os dados iniciais para testes);
 6. (Opcional) Acompanhar a fila de mensagens através do endereço [localhost:15672](http://localhost:15672/). Os dados de usuário e senha estão definidos no arquivo ".env";
