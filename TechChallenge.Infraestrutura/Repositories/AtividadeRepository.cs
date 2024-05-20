@@ -23,16 +23,23 @@ public class AtividadeRepository(
         ReferenceHandler = ReferenceHandler.Preserve
     };
 
-    public Atividade Criar(Atividade atividade)
+    public bool Criar(Atividade atividade)
     {
-        _context.Atividades.Add(atividade);
-        _context.SaveChanges();
+        try
+        {
+            _context.Atividades.Add(atividade);
+            _context.SaveChanges();
 
-        var db = _redisCache.GetDatabase();
-        db.KeyDelete("TodasAtividades");
-        db.KeyDelete("AtividadesAtivas");
+            var db = _redisCache.GetDatabase();
+            db.KeyDelete("TodasAtividades");
+            db.KeyDelete("AtividadesAtivas");
 
-        return atividade;
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     public Atividade? BuscarPorId(int id)
@@ -103,17 +110,26 @@ public class AtividadeRepository(
         return _context.Atividades.Where(a => a.DepartamentoSolucionador == departamento).ToList();
     }
 
-    public void Editar(Atividade atividade)
+    public bool Editar(Atividade atividade)
     {
-        _context.Atividades.Update(atividade);
-        _context.SaveChanges();
+        try
+        {
+            _context.Atividades.Update(atividade);
+            _context.SaveChanges();
 
-        int id = atividade.Id;
-        var db = _redisCache.GetDatabase();
-        db.KeyDelete($"Atividade:{id}");
-        db.KeyDelete($"AtividadeComSolucionadores:{id}");
-        db.KeyDelete("TodasAtividades");
-        db.KeyDelete("AtividadesAtivas");
+            int id = atividade.Id;
+            var db = _redisCache.GetDatabase();
+            db.KeyDelete($"Atividade:{id}");
+            db.KeyDelete($"AtividadeComSolucionadores:{id}");
+            db.KeyDelete("TodasAtividades");
+            db.KeyDelete("AtividadesAtivas");
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     public Usuario? IdentificarSolucionadorMenosAtarefado(int atividadeId)

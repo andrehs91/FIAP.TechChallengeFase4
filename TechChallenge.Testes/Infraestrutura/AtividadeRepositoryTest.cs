@@ -51,12 +51,12 @@ public class AtividadeRepositoryTest
     {
         // Arrange
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseInMemoryDatabase("Criar");
+        optionsBuilder.UseInMemoryDatabase("AtividadeCriar");
         ApplicationDbContext context = new(optionsBuilder.Options);
         AtividadeRepository atividadeRepository = new(_logger, context, _redisCache);
 
         // Act
-        Atividade atividade = atividadeRepository.Criar(new()
+        Atividade atividade = new()
         {
             Id = 1,
             Nome = "Nome da Atividade",
@@ -66,10 +66,12 @@ public class AtividadeRepositoryTest
             TipoDeDistribuicao = TiposDeDistribuicao.Automatica,
             Prioridade = Prioridades.Media,
             PrazoEstimado = 60,
-        });
-        _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade, _jsonSerializerOptions));
+        };
+        bool sucesso = atividadeRepository.Criar(atividade);
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(sucesso, _jsonSerializerOptions));
 
         // Assert
+        Assert.True(sucesso);
         Assert.Single(context.Atividades);
         var atividadeSalva = context.Atividades.First();
         Assert.NotNull(atividadeSalva);
@@ -88,7 +90,7 @@ public class AtividadeRepositoryTest
     {
         // Arrange
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseInMemoryDatabase("BuscarPorId");
+        optionsBuilder.UseInMemoryDatabase("AtividadeBuscarPorId");
         ApplicationDbContext context = new(optionsBuilder.Options);
         context.Atividades.Add(new()
         {
@@ -125,7 +127,7 @@ public class AtividadeRepositoryTest
     {
         // Arrange
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseInMemoryDatabase("BuscarPorIdDeveRetornarVazio");
+        optionsBuilder.UseInMemoryDatabase("AtividadeBuscarPorIdDeveRetornarVazio");
         ApplicationDbContext context = new(optionsBuilder.Options);
         AtividadeRepository atividadeRepository = new(_logger, context, _redisCache);
 
@@ -142,7 +144,7 @@ public class AtividadeRepositoryTest
     {
         // Arrange
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseInMemoryDatabase("BuscarPorIdComSolucionadores");
+        optionsBuilder.UseInMemoryDatabase("AtividadeBuscarPorIdComSolucionadores");
         ApplicationDbContext context = new(optionsBuilder.Options);
         Atividade atividade = new()
         {
@@ -197,7 +199,7 @@ public class AtividadeRepositoryTest
     {
         // Arrange
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseInMemoryDatabase("BuscarPorIdComSolucionadoresDeveRetornarVazio");
+        optionsBuilder.UseInMemoryDatabase("AtividadeBuscarPorIdComSolucionadoresDeveRetornarVazio");
         ApplicationDbContext context = new(optionsBuilder.Options);
         AtividadeRepository atividadeRepository = new(_logger, context, _redisCache);
 
@@ -214,7 +216,7 @@ public class AtividadeRepositoryTest
     {
         // Arrange
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseInMemoryDatabase("BuscarTodas");
+        optionsBuilder.UseInMemoryDatabase("AtividadeBuscarTodas");
         ApplicationDbContext context = new(optionsBuilder.Options);
         context.Atividades.Add(new()
         {
@@ -255,7 +257,7 @@ public class AtividadeRepositoryTest
     {
         // Arrange
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseInMemoryDatabase("BuscarTodasDeveRetornarListaVazia");
+        optionsBuilder.UseInMemoryDatabase("AtividadeBuscarTodasDeveRetornarListaVazia");
         ApplicationDbContext context = new(optionsBuilder.Options);
         AtividadeRepository atividadeRepository = new(_logger, context, _redisCache);
 
@@ -273,7 +275,7 @@ public class AtividadeRepositoryTest
     {
         // Arrange
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseInMemoryDatabase("BuscarAtivas");
+        optionsBuilder.UseInMemoryDatabase("AtividadeBuscarAtivas");
         ApplicationDbContext context = new(optionsBuilder.Options);
         context.Atividades.Add(new()
         {
@@ -314,7 +316,7 @@ public class AtividadeRepositoryTest
     {
         // Arrange
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseInMemoryDatabase("BuscarAtivasDeveRetornarListaVazia");
+        optionsBuilder.UseInMemoryDatabase("AtividadeBuscarAtivasDeveRetornarListaVazia");
         ApplicationDbContext context = new(optionsBuilder.Options);
         AtividadeRepository atividadeRepository = new(_logger, context, _redisCache);
 
@@ -332,7 +334,7 @@ public class AtividadeRepositoryTest
     {
         // Arrange
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseInMemoryDatabase("BuscarPorDepartamentoSolucionador");
+        optionsBuilder.UseInMemoryDatabase("AtividadeBuscarPorDepartamentoSolucionador");
         ApplicationDbContext context = new(optionsBuilder.Options);
         context.Atividades.Add(new()
         {
@@ -384,7 +386,7 @@ public class AtividadeRepositoryTest
     {
         // Arrange
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseInMemoryDatabase("BuscarPorDepartamentoSolucionadorDeveRetornarListaVazia");
+        optionsBuilder.UseInMemoryDatabase("AtividadeBuscarPorDepartamentoSolucionadorDeveRetornarListaVazia");
         ApplicationDbContext context = new(optionsBuilder.Options);
         AtividadeRepository atividadeRepository = new(_logger, context, _redisCache);
 
@@ -402,7 +404,7 @@ public class AtividadeRepositoryTest
     {
         // Arrange
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseInMemoryDatabase("BuscarPorDepartamentoSolucionador");
+        optionsBuilder.UseInMemoryDatabase("AtividadeEditar");
         ApplicationDbContext context = new(optionsBuilder.Options);
         context.Atividades.Add(new()
         {

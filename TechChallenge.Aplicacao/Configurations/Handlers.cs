@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using TechChallenge.Dominio.Exceptions;
 using TechChallenge.DTO;
+using TechChallenge.Infraestrutura.Exceptions;
 
 namespace TechChallenge.Aplicacao.Configurations;
 
@@ -68,6 +69,11 @@ public static class Handlers
                 {
                     statusCode = 404;
                     resposta = new(RespostaDTO.TiposDeResposta.Aviso, exception.Message.ToString());
+                }
+                else if (exception is ErroDeInfraestruturaException)
+                {
+                    statusCode = 500;
+                    resposta = new(RespostaDTO.TiposDeResposta.Erro, exception.Message.ToString());
                 }
             }
             context.Response.StatusCode = statusCode;

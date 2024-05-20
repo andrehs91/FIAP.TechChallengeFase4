@@ -7,6 +7,7 @@ using TechChallenge.Dominio.Enums;
 using TechChallenge.Dominio.Exceptions;
 using TechChallenge.Dominio.Interfaces;
 using TechChallenge.DTO;
+using TechChallenge.Infraestrutura.Exceptions;
 using Xunit.Abstractions;
 
 namespace TechChallenge.Testes.Aplicacao;
@@ -26,6 +27,14 @@ public class AtividadeCommandTest(ITestOutputHelper testOutputHelper)
         Nome = "Nome do Usuário",
         Departamento = "Departamento",
         EhGestor = false,
+    };
+    private readonly Usuario _gestor = new()
+    {
+        Id = 2,
+        Matricula = "2000",
+        Nome = "Nome do Gestor",
+        Departamento = "Departamento",
+        EhGestor = true,
     };
     private readonly List<Atividade> _atividades = [
         new()
@@ -87,14 +96,6 @@ public class AtividadeCommandTest(ITestOutputHelper testOutputHelper)
     public void CriarAtividade(TiposDeDistribuicao tiposDeDistribuicao, Prioridades prioridade)
     {
         // Arrange
-        Usuario usuario = new()
-        {
-            Id = 1,
-            Matricula = "1000",
-            Nome = "Nome do Usuário",
-            Departamento = "Departamento",
-            EhGestor = true,
-        };
         Random random = new();
         uint prazoEstimado = (uint)random.Next(1, 259200);
         AtividadeDTO atividadeDTO = new()
@@ -102,21 +103,19 @@ public class AtividadeCommandTest(ITestOutputHelper testOutputHelper)
             Nome = "Nome da Atividade",
             Descricao = "Descrição da Atividade",
             EstahAtiva = true,
-            DepartamentoSolucionador = usuario.Departamento,
+            DepartamentoSolucionador = _gestor.Departamento,
             TipoDeDistribuicao = tiposDeDistribuicao,
             Prioridade = prioridade,
             PrazoEstimado = prazoEstimado,
         };
-        var entidade = atividadeDTO.ConverterParaEntidade();
-        entidade.Id = 1;
 
         var mockAtividadeRepository = new Mock<IAtividadeRepository>();
-        mockAtividadeRepository.Setup(m => m.Criar(It.IsAny<Atividade>())).Returns(entidade);
+        mockAtividadeRepository.Setup(m => m.Criar(It.IsAny<Atividade>())).Returns(true);
         var mockUsuarioRepository = new Mock<IUsuarioRepository>();
         AtividadeCommand atividadeCommand = new(mockAtividadeRepository.Object, mockUsuarioRepository.Object);
 
         // Act
-        Atividade atividade = atividadeCommand.CriarAtividade(usuario, atividadeDTO);
+        Atividade atividade = atividadeCommand.CriarAtividade(_gestor, atividadeDTO);
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(atividade, _jsonSerializerOptions));
 
         // Assert
@@ -146,7 +145,6 @@ public class AtividadeCommandTest(ITestOutputHelper testOutputHelper)
     {
         // Arrange
         var mockAtividadeRepository = new Mock<IAtividadeRepository>();
-        mockAtividadeRepository.Setup(m => m.Criar(It.IsAny<Atividade>()));
         var mockUsuarioRepository = new Mock<IUsuarioRepository>();
         AtividadeCommand atividadeCommand = new(mockAtividadeRepository.Object, mockUsuarioRepository.Object);
         Random random = new();
@@ -343,46 +341,28 @@ public class AtividadeCommandTest(ITestOutputHelper testOutputHelper)
         var mockAtividadeRepository = new Mock<IAtividadeRepository>();
         mockAtividadeRepository.Setup(m => m.BuscarPorId(It.IsAny<int>()))
             .Returns(_atividades.Find(a => a.Id == idAtividade));
-        mockAtividadeRepository.Setup(m => m.Editar(It.IsAny<Atividade>()));
+        mockAtividadeRepository.Setup(m => m.Editar(It.IsAny<Atividade>())).Returns(true);
         var mockUsuarioRepository = new Mock<IUsuarioRepository>();
         AtividadeCommand atividadeCommand = new(mockAtividadeRepository.Object, mockUsuarioRepository.Object);
-        Usuario usuario = new()
-        {
-            Id = 1,
-            Matricula = "1000",
-            Nome = "Nome do Usuário",
-            Departamento = "Departamento",
-            EhGestor = true,
-        };
 
         // Act
-        bool resultado = atividadeCommand.EditarAtividade(usuario, _atividadeEditadaDTO);
+        bool resultado = atividadeCommand.EditarAtividade(_gestor, _atividadeEditadaDTO);
 
         // Assert
         Assert.True(resultado);
     }
 
     [Fact]
-    public void EditarAtividadeDeveRetornarFalso()
+    public void EditarAtividadeDeveRetornarFalsoPorAtividadeNaoEncontrada()
     {
         // Arrange
-        int idAtividade = 0;
         var mockAtividadeRepository = new Mock<IAtividadeRepository>();
-        mockAtividadeRepository.Setup(m => m.BuscarPorId(It.IsAny<int>()))
-            .Returns(_atividades.Find(a => a.Id == idAtividade));
+        mockAtividadeRepository.Setup(m => m.BuscarPorId(It.IsAny<int>())).Returns(() => null);
         var mockUsuarioRepository = new Mock<IUsuarioRepository>();
         AtividadeCommand atividadeCommand = new(mockAtividadeRepository.Object, mockUsuarioRepository.Object);
-        Usuario usuario = new()
-        {
-            Id = 1,
-            Matricula = "1000",
-            Nome = "Nome do Usuário",
-            Departamento = "Departamento",
-            EhGestor = true,
-        };
 
         // Act
-        bool resultado = atividadeCommand.EditarAtividade(usuario, _atividadeEditadaDTO);
+        bool resultado = atividadeCommand.EditarAtividade(_gestor, _atividadeEditadaDTO);
 
         // Assert
         Assert.False(resultado);
@@ -392,7 +372,7 @@ public class AtividadeCommandTest(ITestOutputHelper testOutputHelper)
     [InlineData("Departamento", false)]
     [InlineData("Outro Departamento", false)]
     [InlineData("Outro Departamento", true)]
-    public void EditarAtividadeLancarExcecaoPorUsuarioNaoAutorizado(
+    public void EditarAtividadeDeveLancarExcecaoPorUsuarioNaoAutorizado(
         string departamento,
         bool ehGestor)
     {
@@ -415,6 +395,23 @@ public class AtividadeCommandTest(ITestOutputHelper testOutputHelper)
 
         // Act and Assert
         Exception exception = Assert.Throws<AcaoNaoAutorizadaException>(act);
+        _testOutputHelper.WriteLine(exception.Message);
+    }
+
+    [Fact]
+    public void EditarAtividadeDeveLancarExcecaoPorErroDeInfraestrutura()
+    {
+        // Arrange
+        var mockAtividadeRepository = new Mock<IAtividadeRepository>();
+        mockAtividadeRepository.Setup(m => m.BuscarPorId(It.IsAny<int>()))
+            .Returns(_atividades.Find(a => a.Id == 1));
+        mockAtividadeRepository.Setup(m => m.Editar(It.IsAny<Atividade>())).Returns(false);
+        var mockUsuarioRepository = new Mock<IUsuarioRepository>();
+        AtividadeCommand atividadeCommand = new(mockAtividadeRepository.Object, mockUsuarioRepository.Object);
+        void act() => atividadeCommand.EditarAtividade(_gestor, _atividadeEditadaDTO);
+
+        // Act and Assert
+        Exception exception = Assert.Throws<ErroDeInfraestruturaException>(act);
         _testOutputHelper.WriteLine(exception.Message);
     }
 

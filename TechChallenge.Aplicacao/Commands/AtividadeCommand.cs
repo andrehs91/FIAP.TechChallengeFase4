@@ -2,6 +2,7 @@
 using TechChallenge.Dominio.Exceptions;
 using TechChallenge.Dominio.Interfaces;
 using TechChallenge.DTO;
+using TechChallenge.Infraestrutura.Exceptions;
 
 namespace TechChallenge.Aplicacao.Commands;
 
@@ -33,7 +34,9 @@ public class AtividadeCommand(
 
         VerificarSeUsuarioEstahAutorizado(usuario, atividade);
 
-        return _atividadeRepository.Criar(atividade);
+        bool sucesso = _atividadeRepository.Criar(atividade);
+        if (sucesso) return atividade;
+        else throw new ErroDeInfraestruturaException("Não foi possível criar a atividade.");
     }
 
     public IList<Atividade> ListarAtividades()
@@ -72,8 +75,9 @@ public class AtividadeCommand(
         atividade.Prioridade = atividadeDTO.Prioridade;
         atividade.PrazoEstimado = atividadeDTO.PrazoEstimado;
 
-        _atividadeRepository.Editar(atividade);
-        return true;
+        bool sucesso = _atividadeRepository.Editar(atividade);
+        if (sucesso) return true;
+        else throw new ErroDeInfraestruturaException("Não foi possível editar a atividade.");
     }
 
     public RespostaDTO DefinirSolucionadores(Usuario usuario, IdsDosUsuariosDTO idsDosUsuariosDTO, int id)

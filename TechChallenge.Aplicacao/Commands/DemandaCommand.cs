@@ -4,6 +4,7 @@ using TechChallenge.Dominio.Entities;
 using TechChallenge.Dominio.Enums;
 using TechChallenge.Dominio.Exceptions;
 using TechChallenge.Dominio.Interfaces;
+using TechChallenge.Infraestrutura.Exceptions;
 using TechChallenge.Infraestrutura.Settings;
 
 namespace TechChallenge.Aplicacao.Commands;
@@ -27,10 +28,18 @@ public class DemandaCommand(
         if (!atividade.EstahAtiva)
             throw new AcaoNaoAutorizadaException("A atividade não está ativa.");
 
-        Demanda demanda = _demandaRepository.Criar(Demanda.Abrir(atividade, solicitante, detalhes));
-        if (atividade.TipoDeDistribuicao == TiposDeDistribuicao.Automatica)
-            EnviarDemandaParaFilaDefinirSolucionador(demanda.Id);
-        return demanda;
+        Demanda demanda = Demanda.Abrir(atividade, solicitante, detalhes);
+        bool sucesso = _demandaRepository.Criar(demanda);
+        if (sucesso)
+        {
+            if (atividade.TipoDeDistribuicao == TiposDeDistribuicao.Automatica)
+                EnviarDemandaParaFilaDefinirSolucionador(demanda.Id);
+            return demanda;
+        }
+        else
+        {
+            throw new ErroDeInfraestruturaException("Não foi possível abrir a demanda.");
+        }
     }
 
     public Demanda ConsultarDemanda(int idDemanda)
@@ -65,7 +74,8 @@ public class DemandaCommand(
             ?? throw new EntidadeNaoEncontradaException("Usuário não encontrado.");
         var demanda = ConsultarDemanda(idDemanda);
         demanda.Encaminhar(ator, novoSolucionador, mensagem);
-        _demandaRepository.Editar(demanda);
+        bool sucesso = _demandaRepository.Editar(demanda);
+        if (!sucesso) throw new ErroDeInfraestruturaException("Não foi possível encaminhar a demanda.");
     }
 
     public void CapturarDemanda(Usuario novoSolucionador, int idDemanda)
@@ -74,28 +84,35 @@ public class DemandaCommand(
             ?? throw new EntidadeNaoEncontradaException("Usuário não encontrado.");
         var demanda = ConsultarDemanda(idDemanda);
         demanda.Capturar(novoSolucionador);
-        _demandaRepository.Editar(demanda);
+        bool sucesso = _demandaRepository.Editar(demanda);
+        if (!sucesso) throw new ErroDeInfraestruturaException("Não foi possível capturar a demanda.");
     }
 
     public void RejeitarDemanda(Usuario ator, int idDemanda, string mensagem)
     {
         var demanda = ConsultarDemanda(idDemanda);
         demanda.Rejeitar(ator, mensagem);
-        _demandaRepository.Editar(demanda);
+        bool sucesso = _demandaRepository.Editar(demanda);
+        if (!sucesso) throw new ErroDeInfraestruturaException("Não foi possível rejeitar a demanda.");
+
+        if (demanda.Atividade.TipoDeDistribuicao == TiposDeDistribuicao.Automatica)
+            EnviarDemandaParaFilaDefinirSolucionador(demanda.Id);
     }
 
     public void ResponderDemanda(Usuario ator, int idDemanda, string mensagem)
     {
         var demanda = ConsultarDemanda(idDemanda);
         demanda.Responder(ator, mensagem);
-        _demandaRepository.Editar(demanda);
+        bool sucesso = _demandaRepository.Editar(demanda);
+        if (!sucesso) throw new ErroDeInfraestruturaException("Não foi possível responder a demanda.");
     }
 
     public void CancelarDemanda(Usuario ator, int idDemanda, string mensagem)
     {
         var demanda = ConsultarDemanda(idDemanda);
         demanda.Cancelar(ator, mensagem);
-        _demandaRepository.Editar(demanda);
+        bool sucesso = _demandaRepository.Editar(demanda);
+        if (!sucesso) throw new ErroDeInfraestruturaException("Não foi possível cancelar a demanda.");
     }
 
     public Demanda ReabrirDemanda(Usuario solicitante, int idDemanda, string mensagem)
@@ -110,8 +127,10 @@ public class DemandaCommand(
     {
         var demanda = ConsultarDemanda(idDemanda);
         demanda.Reativar(ator, mensagem);
-        _demandaRepository.Editar(demanda);
+        bool sucesso = _demandaRepository.Editar(demanda);
+        if (!sucesso) throw new ErroDeInfraestruturaException("Não foi possível reativar a demanda.");
     }
+
     private void EnviarDemandaParaFilaDefinirSolucionador(int idDemanda)
     {
         ConnectionFactory factory = new()

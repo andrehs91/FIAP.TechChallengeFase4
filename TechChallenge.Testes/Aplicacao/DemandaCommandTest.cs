@@ -6,6 +6,7 @@ using TechChallenge.Dominio.Entities;
 using TechChallenge.Dominio.Enums;
 using TechChallenge.Dominio.Exceptions;
 using TechChallenge.Dominio.Interfaces;
+using TechChallenge.Infraestrutura.Exceptions;
 using TechChallenge.Infraestrutura.Settings;
 using Xunit.Abstractions;
 
@@ -79,29 +80,38 @@ public class DemandaCommandTest
         mockUsuarioRepository.Setup(m => m.BuscarPorId(It.Is<int>(id => id == 3))).Returns(_usuarios[3]);
 
         _demandas = [];
-        Demanda demanda1 = Demanda.Abrir(atividade, _usuarios[1], "Solicitante do mesmo departamento; Aguardando Distribuição.");
+        Demanda demanda1 = Demanda.Abrir(atividade, _usuarios[1],
+            "Solicitante do mesmo departamento; Aguardando Distribuição.");
         demanda1.Id = 1;
         _demandas.Add(1, demanda1);
-        Demanda demanda2 = Demanda.Abrir(atividade, _usuarios[3], "Solicitante de outro departamento; Em Atendimento.");
+        Demanda demanda2 = Demanda.Abrir(atividade, _usuarios[3],
+            "Solicitante de outro departamento; Em Atendimento.");
         demanda2.Id = 2;
         demanda2.DefinirSolucionador(_usuarios[2]);
         _demandas.Add(2, demanda2);
-        Demanda demanda3 = Demanda.Abrir(atividade, _usuarios[3], "Solicitante de outro departamento; Aguardando Distribuição.");
+        Demanda demanda3 = Demanda.Abrir(atividade, _usuarios[3],
+            "Solicitante de outro departamento; Aguardando Distribuição.");
         demanda3.Id = 3;
         _demandas.Add(3, demanda3);
-        Demanda demanda4 = Demanda.Abrir(atividade, _usuarios[3], "Solicitante de outro departamento; Aguardando Distribuição.");
+        Demanda demanda4 = Demanda.Abrir(atividade, _usuarios[3],
+            "Solicitante de outro departamento; Aguardando Distribuição.");
         demanda4.Id = 4;
         _demandas.Add(4, demanda4);
+        Demanda demanda5 = Demanda.Abrir(atividade, _usuarios[3],
+            "Solicitante de outro departamento; Em Atendimento.");
+        demanda5.Id = 5;
+        demanda5.DefinirSolucionador(_usuarios[2]);
+        _demandas.Add(5, demanda5);
 
         var mockDemandaRepository = new Mock<IDemandaRepository>();
-        mockDemandaRepository.Setup(m => m.Criar(It.IsAny<Demanda>()))
-            .Returns(Demanda.Abrir(atividade, _usuarios[2], "Detalhes"));
+        mockDemandaRepository.Setup(m => m.Criar(It.IsAny<Demanda>())).Returns(true);
         mockDemandaRepository.Setup(m => m.BuscarPorId(It.Is<int>(id => !_demandas.Keys.Contains(id))))
             .Returns(() => null);
         mockDemandaRepository.Setup(m => m.BuscarPorId(It.Is<int>(id => id == 1))).Returns(_demandas[1]);
         mockDemandaRepository.Setup(m => m.BuscarPorId(It.Is<int>(id => id == 2))).Returns(_demandas[2]);
         mockDemandaRepository.Setup(m => m.BuscarPorId(It.Is<int>(id => id == 3))).Returns(_demandas[3]);
         mockDemandaRepository.Setup(m => m.BuscarPorId(It.Is<int>(id => id == 4))).Returns(_demandas[4]);
+        mockDemandaRepository.Setup(m => m.BuscarPorId(It.Is<int>(id => id == 5))).Returns(_demandas[5]);
         mockDemandaRepository.Setup(m => m.BuscarPorSolicitante(It.Is<int>(id => id == 1)))
             .Returns(_demandas.Values.Where(d => d.UsuarioSolicitanteId == 1).ToList());
         mockDemandaRepository.Setup(m => m.BuscarPorSolicitante(It.Is<int>(id => id == 2)))
@@ -118,7 +128,8 @@ public class DemandaCommandTest
             .Returns(_demandas.Values.Where(d => d.DepartamentoSolucionador == "Departamento").ToList());
         mockDemandaRepository.Setup(m => m.BuscarPorDepartamentoSolucionador(It.Is<string>(d => d == "Outro Departamento")))
             .Returns(_demandas.Values.Where(d => d.DepartamentoSolucionador == "Outro Departamento").ToList());
-        mockDemandaRepository.Setup(m => m.Editar(It.IsAny<Demanda>()));
+        mockDemandaRepository.Setup(m => m.Editar(It.Is<Demanda>(d => d.Id == 5))).Returns(false);
+        mockDemandaRepository.Setup(m => m.Editar(It.Is<Demanda>(d => d.Id != 5))).Returns(true);
 
         _demandaCommand = new(
             mockAppSettings.Object,
@@ -197,7 +208,7 @@ public class DemandaCommandTest
 
     [Theory]
     [InlineData(1, 1)]
-    [InlineData(3, 3)]
+    [InlineData(3, 4)]
     public void ListarDemandasDoDepartamentoSolicitante(int idUsuario, int qunatidadeDemandas)
     {
         // Act
@@ -216,7 +227,7 @@ public class DemandaCommandTest
         _testOutputHelper.WriteLine(JsonSerializer.Serialize(demandas, _jsonSerializerOptions));
 
         // Assert
-        Assert.Single(demandas);
+        Assert.Equal(2, demandas.Count);
     }
 
     [Fact]
@@ -231,7 +242,7 @@ public class DemandaCommandTest
     }
 
     [Theory]
-    [InlineData(1, 4)]
+    [InlineData(1, 5)]
     [InlineData(3, 0)]
     public void ListarDemandasDoDepartamentoSolucionador(int idUsuario, int qunatidadeDemandas)
     {
@@ -282,6 +293,17 @@ public class DemandaCommandTest
     }
 
     [Fact]
+    public void EncaminharDemandaDeveLancarExcecaoPorErroDeInfraestrutura()
+    {
+        // Arrange
+        void act() => _demandaCommand.EncaminharDemanda(_usuarios[1], 5, 1, "EncaminharDemanda.");
+
+        // Act and Assert
+        Exception exception = Assert.Throws<ErroDeInfraestruturaException>(act);
+        Assert.Equal("Não foi possível encaminhar a demanda.", exception.Message);
+    }
+
+    [Fact]
     public void CapturarDemanda()
     {
         // Act
@@ -325,6 +347,17 @@ public class DemandaCommandTest
     }
 
     [Fact]
+    public void CapturarDemandaDeveLancarExcecaoPorErroDeInfraestrutura()
+    {
+        // Arrange
+        void act() => _demandaCommand.CapturarDemanda(_usuarios[1], 5);
+
+        // Act and Assert
+        Exception exception = Assert.Throws<ErroDeInfraestruturaException>(act);
+        Assert.Equal("Não foi possível capturar a demanda.", exception.Message);
+    }
+
+    [Fact]
     public void RejeitarDemanda()
     {
         // Act
@@ -350,6 +383,28 @@ public class DemandaCommandTest
     }
 
     [Fact]
+    public void RejeitarDemandaDeveLancarExcecaoPorAtorNaoAutorizado()
+    {
+        // Arrange
+        void act() => _demandaCommand.RejeitarDemanda(_usuarios[1], 5, "RejeitarDemanda.");
+
+        // Act and Assert
+        Exception exception = Assert.Throws<AtorNaoAutorizadoARejeitarDemandaException>(act);
+        Assert.Equal("A rejeição de demandas é restrita ao solucionador da demanda.", exception.Message);
+    }
+
+    [Fact]
+    public void RejeitarDemandaDeveLancarExcecaoPorErroDeInfraestrutura()
+    {
+        // Arrange
+        void act() => _demandaCommand.RejeitarDemanda(_usuarios[2], 5, "RejeitarDemanda.");
+
+        // Act and Assert
+        Exception exception = Assert.Throws<ErroDeInfraestruturaException>(act);
+        Assert.Equal("Não foi possível rejeitar a demanda.", exception.Message);
+    }
+
+    [Fact]
     public void ResponderDemanda()
     {
         // Act
@@ -370,6 +425,28 @@ public class DemandaCommandTest
         // Act and Assert
         Exception exception = Assert.Throws<EntidadeNaoEncontradaException>(act);
         Assert.Equal("Demanda não encontrada.", exception.Message);
+    }
+
+    [Fact]
+    public void ResponderDemandaDeveLancarExcecaoPorAtorNaoAutorizado()
+    {
+        // Arrange
+        void act() => _demandaCommand.ResponderDemanda(_usuarios[1], 5, "ResponderDemanda.");
+
+        // Act and Assert
+        Exception exception = Assert.Throws<AtorNaoAutorizadoAResponderDemandaException>(act);
+        Assert.Equal("Apenas o solucionador da demanda pode respondê-la.", exception.Message);
+    }
+
+    [Fact]
+    public void ResponderDemandaDeveLancarExcecaoPorErroDeInfraestrutura()
+    {
+        // Arrange
+        void act() => _demandaCommand.ResponderDemanda(_usuarios[2], 5, "ResponderDemanda.");
+
+        // Act and Assert
+        Exception exception = Assert.Throws<ErroDeInfraestruturaException>(act);
+        Assert.Equal("Não foi possível responder a demanda.", exception.Message);
     }
 
     [Theory]
@@ -395,6 +472,28 @@ public class DemandaCommandTest
         // Act and Assert
         Exception exception = Assert.Throws<EntidadeNaoEncontradaException>(act);
         Assert.Equal("Demanda não encontrada.", exception.Message);
+    }
+
+    [Fact]
+    public void CancelarDemandaDeveLancarExcecaoPorAtorNaoAutorizado()
+    {
+        // Arrange
+        void act() => _demandaCommand.CancelarDemanda(_usuarios[2], 1, "CancelarDemanda.");
+
+        // Act and Assert
+        Exception exception = Assert.Throws<AtorNaoAutorizadoACancelarDemandaException>(act);
+        Assert.Equal("O cancelamento de demandas é restrito ao solicitante da demanda, ao solucionador da demanda e aos gestores do departamento solucionador.", exception.Message);
+    }
+
+    [Fact]
+    public void CancelarDemandaDeveLancarExcecaoPorErroDeInfraestrutura()
+    {
+        // Arrange
+        void act() => _demandaCommand.CancelarDemanda(_usuarios[2], 5, "CancelarDemanda.");
+
+        // Act and Assert
+        Exception exception = Assert.Throws<ErroDeInfraestruturaException>(act);
+        Assert.Equal("Não foi possível cancelar a demanda.", exception.Message);
     }
 
     [Theory]
@@ -449,5 +548,17 @@ public class DemandaCommandTest
         // Act and Assert
         Exception exception = Assert.Throws<EntidadeNaoEncontradaException>(act);
         Assert.Equal("Demanda não encontrada.", exception.Message);
+    }
+
+    [Fact]
+    public void ReativarDemandaDeveLancarExcecaoPorErroDeInfraestrutura()
+    {
+        // Arrange
+        _demandas[5].Situacao = Situacoes.CanceladaPeloGestor;
+        void act() => _demandaCommand.ReativarDemanda(_usuarios[2], 5, "ReativarDemanda.");
+
+        // Act and Assert
+        Exception exception = Assert.Throws<ErroDeInfraestruturaException>(act);
+        Assert.Equal("Não foi possível reativar a demanda.", exception.Message);
     }
 }

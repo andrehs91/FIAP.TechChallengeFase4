@@ -10,7 +10,6 @@ using TechChallenge.Infraestrutura.Data;
 
 namespace TechChallenge.Infraestrutura.Repositories;
 
-
 public class DemandaRepository(
     ILogger<DemandaRepository> logger,
     ApplicationDbContext context,
@@ -24,17 +23,24 @@ public class DemandaRepository(
         ReferenceHandler = ReferenceHandler.Preserve
     };
 
-    public Demanda Criar(Demanda demanda)
+    public bool Criar(Demanda demanda)
     {
-        _context.Demandas.Add(demanda);
-        _context.SaveChanges();
+        try
+        {
+            _context.Demandas.Add(demanda);
+            _context.SaveChanges();
 
-        var db = _redisCache.GetDatabase();
-        db.KeyDelete($"DemandasDoSolicitante:{demanda.UsuarioSolicitanteId}");
-        db.KeyDelete($"DemandasDoDepartamentoSolicitante:{demanda.DepartamentoSolicitante.Replace(" ", "_")}");
-        db.KeyDelete($"DemandasDoDepartamentoSolucionador:{demanda.DepartamentoSolucionador.Replace(" ", "_")}");
+            var db = _redisCache.GetDatabase();
+            db.KeyDelete($"DemandasDoSolicitante:{demanda.UsuarioSolicitanteId}");
+            db.KeyDelete($"DemandasDoDepartamentoSolicitante:{demanda.DepartamentoSolicitante.Replace(" ", "_")}");
+            db.KeyDelete($"DemandasDoDepartamentoSolucionador:{demanda.DepartamentoSolucionador.Replace(" ", "_")}");
 
-        return demanda;
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     public Demanda? BuscarPorId(int id)
@@ -157,17 +163,27 @@ public class DemandaRepository(
         return demandas;
     }
 
-    public void Editar(Demanda demanda)
+    public bool Editar(Demanda demanda)
     {
-        _context.Demandas.Update(demanda);
-        _context.SaveChanges();
+        try
+        {
+            _context.Demandas.Update(demanda);
+            _context.SaveChanges();
 
-        var db = _redisCache.GetDatabase();
-        db.KeyDelete($"Demanda:{demanda.Id}");
-        db.KeyDelete($"DemandasDoSolicitante:{demanda.UsuarioSolicitanteId}");
-        db.KeyDelete($"DemandasDoDepartamentoSolicitante:{demanda.DepartamentoSolicitante.Replace(" ", "_")}");
-        if (demanda.UsuarioSolucionadorId is not null) db.KeyDelete($"DemandasDoSolucionador:{demanda.UsuarioSolucionadorId}");
-        db.KeyDelete($"DemandasDoDepartamentoSolucionador:{demanda.DepartamentoSolucionador.Replace(" ", "_")}");
+            var db = _redisCache.GetDatabase();
+            db.KeyDelete($"Demanda:{demanda.Id}");
+            db.KeyDelete($"DemandasDoSolicitante:{demanda.UsuarioSolicitanteId}");
+            db.KeyDelete($"DemandasDoDepartamentoSolicitante:{demanda.DepartamentoSolicitante.Replace(" ", "_")}");
+            if (demanda.UsuarioSolucionadorId is not null)
+                db.KeyDelete($"DemandasDoSolucionador:{demanda.UsuarioSolucionadorId}");
+            db.KeyDelete($"DemandasDoDepartamentoSolucionador:{demanda.DepartamentoSolucionador.Replace(" ", "_")}");
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     private Demanda? DesserializarDemanda(RedisValue cache)
