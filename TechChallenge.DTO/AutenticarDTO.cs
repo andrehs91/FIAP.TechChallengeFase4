@@ -5,10 +5,10 @@ namespace TechChallenge.DTO;
 
 public class AutenticarDTO
 {
-    [Required]
+    [Required(ErrorMessage = "O campo 'Matricula' é obrigatório")]
     public string Matricula { get; set; } = null!;
 
-    [Required]
+    [Required(ErrorMessage = "O campo 'Senha' é obrigatório")]
     [DefaultValue("senha")]
     public string Senha { get; set; } = null!;
 }

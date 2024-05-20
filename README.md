@@ -2,15 +2,14 @@
 
 Este repositório contêm o projeto desenvolvido para o Tech Challenge da quarta fase do curso **Arquitetura de Sistemas .NET com Azure**, desenvolvido pelo aluno **André Henrique dos Santos (RM351909)**.
 
-Os requisitos do projeto foram levantados através do *Event Storming* que pode ser conferido em https://miro.com/app/board/uXjVNe54OjM=/ e transcritos para o arquivo "Dicionário.docx" deste repositório.
+Os requisitos do projeto foram levantados através do *Event Storming* que pode ser conferido em https://miro.com/app/board/uXjVNe54OjM=/ e transcritos para o arquivo "Requisitos.docx" deste repositório.
 
 ### Escopo o Projeto
 
 O sistema desenvolvido é um gerenciador de demandas, que visa centralizar a abertura e tratamento de demandas de diferentes departamentos de uma organização de médio/grande porte, onde um fluxo claro e objetivo se faz necessário em função do volume e complexidade dos processos.
 
-No arquivo "Dicionário.docx", seção **Eventos/Comandos**, constam todos os casos de uso que foram mapeados. Mas, apenas os itens em preto foram considerados como essências para que a primeira versão do sistema fosse considerada viável. Por isso, os itens em vermelho não foram incluídos nos fluxos do *Event Storming*.
-
-Portanto, foi definido que o critério de aceite do projeto seria a implementação de todos os casos de uso essenciais e que somente a API de backend deveria ser desenvolvida.
+No arquivo "Requisitos.docx", seção **Eventos/Comandos**, constam todos os casos de uso essenciais para a viabilidade do projeto.
+Portanto, foi definido que o critério de aceite do projeto seria a implementação destes casos de uso, e que somente a API de backend deveria ser desenvolvida.
 
 ### Considerações Sobre a Implementação
 

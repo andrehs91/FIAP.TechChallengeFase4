@@ -6,24 +6,24 @@ namespace TechChallenge.DTO;
 
 public class EditarAtividadeDTO
 {
-    [Required]
+    [Required(ErrorMessage = "O campo 'Nome' é obrigatório")]
     public string Nome { get; set; } = null!;
 
-    [Required]
+    [Required(ErrorMessage = "O campo 'Descricao' é obrigatório")]
     public string Descricao { get; set; } = null!;
 
-    [Required]
+    [Required(ErrorMessage = "O campo 'EstahAtiva' é obrigatório")]
     public bool EstahAtiva { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "O campo 'TipoDeDistribuicao' é obrigatório")]
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public TiposDeDistribuicao TipoDeDistribuicao { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "O campo 'Prioridade' é obrigatório")]
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public Prioridades Prioridade { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "O campo 'PrazoEstimado' é obrigatório")]
     public uint PrazoEstimado { get; set; }
 
     public AtividadeDTO ConverterParaAtividadeDTO(int id, string departamentoSolucionador)
