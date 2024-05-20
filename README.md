@@ -10,8 +10,7 @@ Os requisitos do projeto foram definidos no arquivo "Requisitos.docx".
 
 O sistema desenvolvido é um gerenciador de demandas, que visa centralizar a abertura e tratamento de demandas de diferentes departamentos de uma organização de médio/grande porte, onde um fluxo claro e objetivo se faz necessário em função do volume e complexidade dos processos.
 
-No arquivo "Requisitos.docx", seção **Eventos/Comandos** e seção **Políticas**, constam todos os casos de uso essenciais para a viabilidade do projeto.
-Para que o projeto fosse considerado viável e uma primeira versão pudesse ser considerada pronta, todos os eventos/comandos/políticas deveriam ser implementados em forma de API Web.
+No arquivo "Requisitos.docx", seção **Eventos/Comandos** e seção **Políticas**, constam todos os casos de uso essenciais para a viabilidade do projeto. Portanto, para que o projeto fosse considerado viável e uma primeira versão pudesse ser considerada pronta, todos os eventos/comandos/políticas deveriam ser implementados em forma de API Web.
 
 ---
 
